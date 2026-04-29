@@ -2,8 +2,16 @@ use crate::models::{DevJunkItem, DevJunkType, SafetyLevel};
 
 #[tauri::command]
 pub async fn scan_dev_junk() -> Result<Vec<DevJunkItem>, String> {
-    // Run in blocking thread to prevent async runtime starvation
+    // Run in blocking thread with I/O throttling
     tokio::task::spawn_blocking(|| {
+        // Apply macOS background I/O priority
+        extern "C" {
+            fn setiopolicy_np(iotype: i32, scope: i32, policy: i32) -> i32;
+        }
+        unsafe {
+            setiopolicy_np(0, 1, 3); // IOPOL_TYPE_DISK, IOPOL_SCOPE_THREAD, IOPOL_THROTTLE
+            libc::nice(10);
+        }
         scan_dev_junk_inner()
     })
     .await

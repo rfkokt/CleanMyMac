@@ -178,21 +178,28 @@ function FileRow({
       {/* Name */}
       <button
         onClick={node.is_dir ? onNavigate : undefined}
-        className="flex-1 min-w-0 flex items-center gap-2 text-left"
+        className="flex-1 min-w-0 flex flex-col justify-center text-left"
       >
-        {node.is_dir ? (
-          <Folder size={16} weight="duotone" className="text-accent-secondary shrink-0" />
-        ) : (
-          <File size={16} weight="duotone" className="text-text-muted shrink-0" />
-        )}
-        <span className={`text-sm truncate ${node.is_dir ? 'text-text-primary font-medium hover:text-accent-primary transition-colors' : 'text-text-secondary'}`}>
-          {node.name}
-        </span>
-        {node.is_dir && node.children && (
-          <span className="text-xs text-text-muted shrink-0">
-            {node.children.length} items
+        <div className="flex items-center gap-2">
+          {node.is_dir ? (
+            <Folder size={16} weight="duotone" className="text-accent-secondary shrink-0" />
+          ) : (
+            <File size={16} weight="duotone" className="text-text-muted shrink-0" />
+          )}
+          <span className={`text-sm truncate ${node.is_dir ? 'text-text-primary font-medium hover:text-accent-primary transition-colors' : 'text-text-secondary'}`}>
+            {node.name}
           </span>
-        )}
+          {node.is_dir && node.children && (
+            <span className="text-xs text-text-muted shrink-0">
+              {node.children.length} items
+            </span>
+          )}
+        </div>
+        <div className="pl-6 flex items-center gap-2">
+          <span className="text-[10px] text-text-muted truncate mt-0.5">
+            {getDiskLabel(node.path)} — {shortenPath(node.path)}
+          </span>
+        </div>
       </button>
 
       {/* Size */}
@@ -235,4 +242,27 @@ function FileRow({
       </button>
     </motion.div>
   );
+}
+
+/** Determine which disk/volume a path belongs to */
+function getDiskLabel(path: string): string {
+  if (path.startsWith('/Volumes/')) {
+    // External or named volume: /Volumes/External M4/...
+    const parts = path.split('/');
+    return `💾 ${parts[2]}`;
+  }
+  // Root disk (Macintosh HD)
+  return '💻 Macintosh HD';
+}
+
+/** Shorten a file path for display */
+function shortenPath(path: string): string {
+  // Replace home dir with ~
+  const shortened = path.replace(/^\/Users\/[^/]+\//, '~/');
+  // If still long, take last 2 segments
+  if (shortened.length > 60) {
+    const parts = shortened.split('/');
+    return '…/' + parts.slice(-2).join('/');
+  }
+  return shortened;
 }

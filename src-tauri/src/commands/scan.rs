@@ -3,7 +3,7 @@ use crate::scanner::categorizer::categorize_path;
 use crate::scanner::rules::assess_safety;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::time::Instant;
+use std::time::{Duration, Instant};
 use tauri::Emitter;
 
 /// Directories to skip during scanning (system/virtual dirs that cause hangs)
@@ -18,6 +18,28 @@ const SKIP_DIRS: &[&str] = &[
     "private/var/db",
     "private/var/folders",
 ];
+
+/// Throttle interval — sleep this long every N files to let macOS I/O breathe
+const THROTTLE_SLEEP: Duration = Duration::from_millis(1);
+/// How many files to process between throttle sleeps
+const THROTTLE_BATCH: u64 = 500;
+
+/// Set current thread to background I/O + CPU priority on macOS.
+/// This tells the kernel to deprioritize this thread's disk access,
+/// similar to how Time Machine and Spotlight work in the background.
+fn throttle_current_thread() {
+    extern "C" {
+        fn setiopolicy_np(iotype: i32, scope: i32, policy: i32) -> i32;
+    }
+    unsafe {
+        // macOS: set I/O policy to THROTTLE for this thread
+        // IOPOL_TYPE_DISK = 0, IOPOL_SCOPE_THREAD = 1, IOPOL_THROTTLE = 3
+        setiopolicy_np(0, 1, 3);
+
+        // Lower CPU priority (nice value 10 = low priority)
+        libc::nice(10);
+    }
+}
 
 #[tauri::command]
 pub async fn start_scan(
@@ -39,6 +61,9 @@ pub async fn start_scan(
 
     // Run the scan in a blocking thread so it doesn't starve the async runtime
     let result = tokio::task::spawn_blocking(move || {
+        // Apply macOS I/O throttling to this thread
+        throttle_current_thread();
+
         let mut file_count: u64 = 0;
         let mut dir_count: u64 = 0;
         let mut categories: HashMap<String, u64> = HashMap::new();
@@ -159,8 +184,8 @@ fn scan_directory(
 
                     let count = scanned.fetch_add(1, Ordering::Relaxed);
 
-                    // Emit progress every 500 files (not too frequent to avoid IPC spam)
-                    if count % 500 == 0 {
+                    // Emit progress + throttle every THROTTLE_BATCH files
+                    if count % THROTTLE_BATCH == 0 {
                         let _ = app.emit(
                             "scan://progress",
                             ScanProgress {
@@ -170,8 +195,8 @@ fn scan_directory(
                             },
                         );
 
-                        // Yield to let the OS scheduler breathe — prevents system lag
-                        std::thread::yield_now();
+                        // Sleep to let macOS I/O scheduler serve other processes
+                        std::thread::sleep(THROTTLE_SLEEP);
                     }
                 }
             }
@@ -218,6 +243,7 @@ pub async fn find_large_files(
 
     // Run in blocking thread to prevent async runtime starvation
     let large_files = tokio::task::spawn_blocking(move || {
+        throttle_current_thread();
         let mut results = Vec::new();
 
         for entry in jwalk::WalkDir::new(&root_path)
