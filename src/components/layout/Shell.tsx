@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
+import { CleanupToast } from '../ui/CleanupToast';
 
 export function Shell({ children }: { children: ReactNode }) {
   const location = useLocation();
@@ -21,6 +22,7 @@ export function Shell({ children }: { children: ReactNode }) {
           {children}
         </div>
       </main>
+      <CleanupToast />
     </div>
   );
 }

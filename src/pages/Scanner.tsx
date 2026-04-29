@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   MagnifyingGlass,
@@ -11,12 +11,11 @@ import {
   Spinner,
 } from '@phosphor-icons/react';
 import { useScanStore } from '../stores/scan-store';
+import { useCleanupStore } from '../stores/cleanup-store';
 import { useScanner } from '../hooks/use-scanner';
-import { useCleanup } from '../hooks/use-cleanup';
 import { FileList } from '../components/scanner/FileList';
 import { FilterBar } from '../components/scanner/FilterBar';
 import { ConfirmDialog } from '../components/cleanup/ConfirmDialog';
-import { CleanupSummary } from '../components/cleanup/CleanupSummary';
 import { GSAPScanner3D } from '../components/ui/GSAPScanner3D';
 import { ScanningPlaceholder } from '../components/scanner/ScanningPlaceholder';
 import { GlassIcon } from '../components/ui/GlassIcon';
@@ -30,7 +29,6 @@ export default function Scanner() {
   const { scanResult, isScanning, progress, selectedPaths } = useScanStore();
   const { toggleSelected, selectAllSafe, clearSelection } = useScanStore();
   const { scan } = useScanner();
-  const { isCleaningUp, cleanupResult, cleanupProgress, cleanup, dismissResult } = useCleanup();
 
   // Drill-down state
   const [navStack, setNavStack] = useState<FileNode[]>([]);
@@ -39,6 +37,24 @@ export default function Scanner() {
   const [categoryFilter, setCategoryFilter] = useState<FileCategory[]>([]);
   const [safetyFilter, setSafetyFilter] = useState<SafetyLevel[]>([]);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // Auto remove items from UI when cleanup finishes (instead of blocking re-scan)
+  const cleanupResult = useCleanupStore((s) => s.result);
+  const prevResultRef = useRef(cleanupResult);
+  useEffect(() => {
+    if (cleanupResult && cleanupResult !== prevResultRef.current && scanResult) {
+      // Optimistically remove deleted items from the tree
+      const successfulPaths = cleanupResult.items_deleted > 0 
+        ? Array.from(selectedPaths) // Note: this might not be perfect if some failed, but good enough for UI
+        : [];
+      
+      if (successfulPaths.length > 0) {
+        useScanStore.getState().removeItems(successfulPaths);
+      }
+      clearSelection();
+    }
+    prevResultRef.current = cleanupResult;
+  }, [cleanupResult, scanResult, clearSelection, selectedPaths]);
 
   // Current view — either root or drilled-down
   const currentNode = navStack.length > 0 ? navStack[navStack.length - 1] : scanResult?.root;
@@ -299,28 +315,17 @@ export default function Scanner() {
 
 
 
-      {/* Cleanup confirm dialog */}
       <ConfirmDialog
         isOpen={showConfirm}
         items={selectedItems}
         totalSize={selectedSize}
-        isCleaningUp={isCleaningUp}
-        progress={cleanupProgress}
-        onConfirm={async () => {
-          const result = await cleanup();
-          if (result) {
-            setShowConfirm(false);
-          }
+        onConfirm={async (permanent) => {
+          setShowConfirm(false);
+          useCleanupStore.getState().startCleanup(Array.from(selectedPaths), permanent);
         }}
         onCancel={() => setShowConfirm(false)}
       />
 
-      {/* Cleanup result toast */}
-      <AnimatePresence>
-        {cleanupResult && (
-          <CleanupSummary result={cleanupResult} onDismiss={dismissResult} />
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 }

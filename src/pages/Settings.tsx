@@ -35,25 +35,25 @@ export default function Settings() {
       </div>
 
       {/* Full Disk Access */}
-      <div className="glass rounded-none p-5 space-y-4">
-        <h2 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-          <ShieldCheck size={18} weight="duotone" className="text-accent-primary" />
+      <div className="glass rounded-3xl p-6 space-y-4 border border-white/5">
+        <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+          <ShieldCheck size={18} weight="duotone" className="text-[#0D9488]" />
           Permissions
         </h2>
-        <div className="flex items-center justify-between py-3 border-t border-bg-tertiary">
-          <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between py-4 border-t border-white/10">
+          <div className="flex items-center gap-4">
             {hasFDA ? (
-              <div className="p-1.5 rounded-none bg-safe/15">
-                <ShieldCheck size={16} className="text-safe" />
+              <div className="p-2 rounded-full bg-[#0D9488]/20 text-[#0D9488]">
+                <ShieldCheck size={20} />
               </div>
             ) : (
-              <div className="p-1.5 rounded-none bg-review/15">
-                <ShieldWarning size={16} className="text-review" />
+              <div className="p-2 rounded-full bg-[#FF9F0A]/20 text-[#FF9F0A]">
+                <ShieldWarning size={20} />
               </div>
             )}
             <div>
-              <p className="text-sm text-text-primary">Full Disk Access</p>
-              <p className="text-xs text-text-muted mt-0.5">
+              <p className="text-sm font-medium text-white">Full Disk Access</p>
+              <p className="text-xs text-white/50 mt-0.5">
                 {hasFDA ? 'Granted — all directories accessible' : 'Not granted — some directories inaccessible'}
               </p>
             </div>
@@ -63,9 +63,9 @@ export default function Settings() {
               onClick={() => {
                 openSystemPreferences().catch(console.error);
               }}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-none text-xs font-medium text-accent-primary bg-accent-primary/10 hover:bg-accent-primary/20 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium text-white bg-[#FF9F0A] hover:bg-[#FF9F0A]/80 shadow-[0_0_15px_rgba(255,159,10,0.4)] transition-all"
             >
-              <ArrowSquareOut size={12} />
+              <ArrowSquareOut size={14} />
               Open Settings
             </button>
           )}
@@ -83,12 +83,12 @@ export default function Settings() {
 
       {/* Disk Info */}
       {diskInfo && (
-        <div className="glass rounded-none p-5 space-y-3">
-          <h2 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-            <Info size={18} weight="duotone" className="text-accent-primary" />
+        <div className="glass rounded-3xl p-6 space-y-3 border border-white/5">
+          <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+            <Info size={18} weight="duotone" className="text-[#0D9488]" />
             System Information
           </h2>
-          <div className="space-y-2.5 pt-2 border-t border-bg-tertiary">
+          <div className="space-y-3 pt-3 border-t border-white/10">
             {[
               { label: 'Total Capacity', value: formatBytes(diskInfo.total_capacity) },
               { label: 'Used Space', value: formatBytes(diskInfo.used_space) },
@@ -105,12 +105,12 @@ export default function Settings() {
       )}
 
       {/* About */}
-      <div className="glass rounded-none p-5 space-y-3">
-        <h2 className="text-sm font-semibold text-text-primary flex items-center gap-2">
-          <Gear size={18} weight="duotone" className="text-accent-primary" />
+      <div className="glass rounded-3xl p-6 space-y-3 border border-white/5">
+        <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+          <Gear size={18} weight="duotone" className="text-[#0D9488]" />
           About
         </h2>
-        <div className="space-y-2.5 pt-2 border-t border-bg-tertiary">
+        <div className="space-y-3 pt-3 border-t border-white/10">
           {[
             { label: 'Version', value: '0.1.0' },
             { label: 'Framework', value: 'Tauri v2' },
@@ -127,32 +127,32 @@ export default function Settings() {
       </div>
 
       {/* Cleanup behavior */}
-      <div className="glass rounded-none p-5 space-y-3">
-        <h2 className="text-sm font-semibold text-text-primary">Cleanup Behavior</h2>
-        <div className="space-y-3 pt-2 border-t border-bg-tertiary">
-          <div className="flex items-start gap-3 p-3 rounded-none bg-safe/5 border border-safe/10">
-            <div className="mt-0.5 w-2 h-2 rounded-full bg-safe shrink-0" />
+      <div className="glass rounded-3xl p-6 space-y-3 border border-white/5">
+        <h2 className="text-sm font-semibold text-white">Cleanup Behavior</h2>
+        <div className="space-y-3 pt-3 border-t border-white/10">
+          <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+            <div className="mt-0.5 w-2 h-2 rounded-full bg-[#0D9488] shrink-0 shadow-[0_0_10px_#0D9488]" />
             <div>
-              <p className="text-sm text-text-primary">Safe deletion only</p>
-              <p className="text-xs text-text-muted mt-0.5">
+              <p className="text-sm font-medium text-white">Safe deletion only</p>
+              <p className="text-xs text-white/50 mt-1">
                 All deletions use macOS Trash — files can be recovered anytime
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-3 p-3 rounded-none bg-review/5 border border-review/10">
-            <div className="mt-0.5 w-2 h-2 rounded-full bg-review shrink-0" />
+          <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+            <div className="mt-0.5 w-2 h-2 rounded-full bg-[#FF9F0A] shrink-0 shadow-[0_0_10px_#FF9F0A]" />
             <div>
-              <p className="text-sm text-text-primary">Safety ratings</p>
-              <p className="text-xs text-text-muted mt-0.5">
+              <p className="text-sm font-medium text-white">Safety ratings</p>
+              <p className="text-xs text-white/50 mt-1">
                 Items rated 🟢 Safe, 🟡 Review, or 🔴 Caution to prevent accidental data loss
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-3 p-3 rounded-none bg-caution/5 border border-caution/10">
-            <div className="mt-0.5 w-2 h-2 rounded-full bg-caution shrink-0" />
+          <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+            <div className="mt-0.5 w-2 h-2 rounded-full bg-[#E11D48] shrink-0 shadow-[0_0_10px_#E11D48]" />
             <div>
-              <p className="text-sm text-text-primary">Extra confirmation</p>
-              <p className="text-xs text-text-muted mt-0.5">
+              <p className="text-sm font-medium text-white">Extra confirmation</p>
+              <p className="text-xs text-white/50 mt-1">
                 Caution-rated items require typing "DELETE" to confirm
               </p>
             </div>

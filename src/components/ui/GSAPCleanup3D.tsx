@@ -58,19 +58,19 @@ export function GSAPCleanup3D({ isCleaningUp }: { isCleaningUp: boolean }) {
       <div className="gsap-scene relative w-full h-full flex items-center justify-center">
         {/* Flying files */}
         <div className="absolute inset-0 flex items-start justify-center z-20 pointer-events-none overflow-hidden">
-          <div className="gsap-file absolute top-0 text-caution opacity-0"><FileDashed size={isCleaningUp ? 28 : 14} weight="fill" /></div>
-          <div className="gsap-file absolute top-0 text-caution opacity-0"><FileDashed size={isCleaningUp ? 28 : 14} weight="fill" /></div>
-          <div className="gsap-file absolute top-0 text-caution opacity-0"><FileDashed size={isCleaningUp ? 28 : 14} weight="fill" /></div>
+          <div className="gsap-file absolute top-0 text-[#E11D48] opacity-0"><FileDashed size={isCleaningUp ? 28 : 14} weight="fill" /></div>
+          <div className="gsap-file absolute top-0 text-[#E11D48] opacity-0"><FileDashed size={isCleaningUp ? 28 : 14} weight="fill" /></div>
+          <div className="gsap-file absolute top-0 text-[#E11D48] opacity-0"><FileDashed size={isCleaningUp ? 28 : 14} weight="fill" /></div>
           {isCleaningUp && (
             <>
-              <div className="gsap-file absolute top-0 text-caution opacity-0"><FileDashed size={24} weight="fill" /></div>
-              <div className="gsap-file absolute top-0 text-caution opacity-0"><FileDashed size={20} weight="fill" /></div>
+              <div className="gsap-file absolute top-0 text-[#E11D48] opacity-0"><FileDashed size={24} weight="fill" /></div>
+              <div className="gsap-file absolute top-0 text-[#E11D48] opacity-0"><FileDashed size={20} weight="fill" /></div>
             </>
           )}
         </div>
 
         {/* 3D Trash Can */}
-        <div className={`gsap-trash relative z-10 flex items-center justify-center rounded-none bg-caution/15 text-caution shadow-2xl ${isCleaningUp ? 'p-6 border-2 border-caution/30' : 'p-2.5'}`}>
+        <div className={`gsap-trash relative z-10 flex items-center justify-center rounded-full bg-[#E11D48]/20 text-[#E11D48] shadow-[0_0_30px_rgba(225,29,72,0.4)] ${isCleaningUp ? 'p-6 border border-[#E11D48]/40' : 'p-2.5 border border-[#E11D48]/20'}`}>
           <Trash size={isCleaningUp ? 48 : 24} weight={isCleaningUp ? "fill" : "duotone"} />
         </div>
       </div>

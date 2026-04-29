@@ -89,19 +89,19 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <TiltCard className="glass p-8 text-left w-full block">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="p-3 rounded-2xl bg-[#FF2E93]/20 border border-[#FF2E93]/30 shadow-[0_0_20px_rgba(255,46,147,0.3)]">
-              <HardDrives size={32} weight="duotone" className="text-[#FF2E93]" />
+          <TiltCard className="glass p-6 text-left w-full block">
+          <div className="flex items-center gap-4 mb-5">
+            <div className="p-2.5 rounded-full bg-white/5 border border-white/10">
+              <HardDrives size={24} weight="duotone" className="text-white/80" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-text-primary">Storage</h2>
-              <p className="text-sm text-text-secondary">
+              <h2 className="text-base font-medium text-white">Storage</h2>
+              <p className="text-xs text-white/60">
                 {formatBytes(diskInfo.used_space)} of {formatBytes(diskInfo.total_capacity)} used
               </p>
             </div>
             <span
-              className="ml-auto text-3xl font-bold"
+              className="ml-auto text-2xl font-semibold"
               style={{ color: usageColor }}
             >
               {formatPercent(diskInfo.used_space, diskInfo.total_capacity)}
@@ -138,39 +138,39 @@ export default function Dashboard() {
       )}
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <button onClick={() => { navigate('/scan'); handleQuickScan(); }} className="w-full text-left glass p-6 flex flex-col gap-3 group block transition-transform hover:scale-[1.02]">
-              <div className="w-12 h-12 rounded-2xl bg-[#00F0FF]/20 border border-[#00F0FF]/30 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.2)] group-hover:shadow-[0_0_30px_rgba(0,240,255,0.4)] transition-all">
-                <Lightning size={24} weight="duotone" className="text-[#00F0FF]" />
+            <button onClick={() => { navigate('/scan'); handleQuickScan(); }} className="w-full text-left glass p-4 flex items-center gap-4 group block transition-transform hover:scale-[1.02]">
+              <div className="p-2.5 rounded-full bg-white/5 border border-white/10 group-hover:bg-[#0D9488]/20 group-hover:border-[#0D9488]/40 transition-all">
+                <Lightning size={20} weight="duotone" className="text-white/70 group-hover:text-[#0D9488] transition-colors" />
               </div>
               <div>
-                <h3 className="text-base font-semibold text-white">Quick Scan</h3>
-                <p className="text-sm text-white/60">Scan home directory</p>
+                <h3 className="text-sm font-medium text-white group-hover:text-[#0D9488] transition-colors">Quick Scan</h3>
+                <p className="text-xs text-white/50">Scan home directory</p>
               </div>
             </button>
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-            <button onClick={() => navigate('/dev-tools')} className="w-full text-left glass p-6 flex flex-col gap-3 group block transition-transform hover:scale-[1.02]">
-              <div className="w-12 h-12 rounded-2xl bg-[#FF9F0A]/20 border border-[#FF9F0A]/30 flex items-center justify-center shadow-[0_0_20px_rgba(255,159,10,0.2)] group-hover:shadow-[0_0_30px_rgba(255,159,10,0.4)] transition-all">
-                <Wrench size={24} weight="duotone" className="text-[#FF9F0A]" />
+            <button onClick={() => navigate('/dev-tools')} className="w-full text-left glass p-4 flex items-center gap-4 group block transition-transform hover:scale-[1.02]">
+              <div className="p-2.5 rounded-full bg-white/5 border border-white/10 group-hover:bg-[#FF9F0A]/20 group-hover:border-[#FF9F0A]/40 transition-all">
+                <Wrench size={20} weight="duotone" className="text-white/70 group-hover:text-[#FF9F0A] transition-colors" />
               </div>
               <div>
-                <h3 className="text-base font-semibold text-white">Dev Cleanup</h3>
-                <p className="text-sm text-white/60">node_modules, Xcode, Docker</p>
+                <h3 className="text-sm font-medium text-white group-hover:text-[#FF9F0A] transition-colors">Dev Cleanup</h3>
+                <p className="text-xs text-white/50">node_modules, Xcode, Docker</p>
               </div>
             </button>
           </motion.div>
 
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-            <button onClick={() => navigate('/large-files')} className="w-full text-left glass p-6 flex flex-col gap-3 group block transition-transform hover:scale-[1.02]">
-              <div className="w-12 h-12 rounded-2xl bg-[#BF5AF2]/20 border border-[#BF5AF2]/30 flex items-center justify-center shadow-[0_0_20px_rgba(191,90,242,0.2)] group-hover:shadow-[0_0_30px_rgba(191,90,242,0.4)] transition-all">
-                <FileMagnifyingGlass size={24} weight="duotone" className="text-[#BF5AF2]" />
+            <button onClick={() => navigate('/large-files')} className="w-full text-left glass p-4 flex items-center gap-4 group block transition-transform hover:scale-[1.02]">
+              <div className="p-2.5 rounded-full bg-white/5 border border-white/10 group-hover:bg-[#BF5AF2]/20 group-hover:border-[#BF5AF2]/40 transition-all">
+                <FileMagnifyingGlass size={20} weight="duotone" className="text-white/70 group-hover:text-[#BF5AF2] transition-colors" />
               </div>
               <div>
-                <h3 className="text-base font-semibold text-white">Large Files</h3>
-                <p className="text-sm text-white/60">Find files &gt; 100MB</p>
+                <h3 className="text-sm font-medium text-white group-hover:text-[#BF5AF2] transition-colors">Large Files</h3>
+                <p className="text-xs text-white/50">Find files &gt; 100MB</p>
               </div>
             </button>
           </motion.div>
@@ -183,7 +183,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="glass rounded-none p-6 overflow-hidden"
+            className="glass rounded-2xl p-6 overflow-hidden"
           >
             <div className="flex items-center gap-6">
               {/* GSAP 3D Animation */}
@@ -191,23 +191,23 @@ export default function Dashboard() {
               
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold text-text-primary">
+                  <span className="text-sm font-semibold text-white">
                     Scanning Storage...
                   </span>
-                  <span className="text-sm font-medium text-accent-primary">
+                  <span className="text-sm font-medium text-[#00F0FF]">
                     {progress.scanned.toLocaleString()} files
                   </span>
                 </div>
                 
-                <div className="w-full h-1.5 bg-bg-tertiary rounded-none overflow-hidden mb-2">
+                <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden mb-2">
                   <motion.div
-                    className="h-full bg-accent-primary"
+                    className="h-full bg-gradient-to-r from-[#0D9488] to-[#00F0FF]"
                     animate={{ width: ['0%', '100%'] }}
                     transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                   />
                 </div>
                 
-                <p className="text-xs text-text-muted truncate">
+                <p className="text-xs text-white/40 truncate">
                   {progress.current_path}
                 </p>
               </div>
@@ -252,9 +252,9 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25 + i * 0.05 }}
-              className="glass rounded-none p-4"
+              className="glass rounded-2xl p-4"
             >
-              <p className="text-xs text-text-muted">{label}</p>
+              <p className="text-xs text-white/50">{label}</p>
               <p className="text-lg font-bold mt-1" style={{ color }}>{value}</p>
             </motion.div>
           ))}
@@ -270,16 +270,16 @@ export default function Dashboard() {
             transition={{ delay: 0.3 }}
             whileHover={{ scale: 1.01 }}
             onClick={() => navigate('/visualize')}
-            className="glass rounded-none p-5 text-left hover:border-accent-secondary/30 transition-all group"
+            className="glass rounded-2xl p-5 text-left hover:border-[#BF5AF2]/30 transition-all group"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <ChartDonut size={20} weight="duotone" className="text-accent-secondary" />
-                <span className="text-sm font-medium text-text-primary">View Treemap</span>
+                <ChartDonut size={20} weight="duotone" className="text-[#BF5AF2]" />
+                <span className="text-sm font-medium text-white">View Treemap</span>
               </div>
-              <ArrowRight size={16} className="text-text-muted group-hover:text-text-primary transition-colors" />
+              <ArrowRight size={16} className="text-white/40 group-hover:text-white transition-colors" />
             </div>
-            <p className="text-xs text-text-secondary mt-2">
+            <p className="text-xs text-white/50 mt-2">
               Interactive visualization of disk usage
             </p>
           </motion.button>
@@ -290,16 +290,16 @@ export default function Dashboard() {
             transition={{ delay: 0.35 }}
             whileHover={{ scale: 1.01 }}
             onClick={() => navigate('/scan')}
-            className="glass rounded-none p-5 text-left hover:border-accent-primary/30 transition-all group"
+            className="glass rounded-2xl p-5 text-left hover:border-[#0D9488]/30 transition-all group"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <FileMagnifyingGlass size={20} weight="duotone" className="text-accent-primary" />
-                <span className="text-sm font-medium text-text-primary">Browse Results</span>
+                <FileMagnifyingGlass size={20} weight="duotone" className="text-[#0D9488]" />
+                <span className="text-sm font-medium text-white">Browse Results</span>
               </div>
-              <ArrowRight size={16} className="text-text-muted group-hover:text-text-primary transition-colors" />
+              <ArrowRight size={16} className="text-white/40 group-hover:text-white transition-colors" />
             </div>
-            <p className="text-xs text-text-secondary mt-2">
+            <p className="text-xs text-white/50 mt-2">
               Sort, filter, and manage scanned files
             </p>
           </motion.button>

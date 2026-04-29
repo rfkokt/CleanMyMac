@@ -1,6 +1,48 @@
 use crate::models::{CleanupError, CleanupResult};
 use tauri::Emitter;
 
+/// System paths that must NEVER be deleted (matched by filename)
+const PROTECTED_NAMES: &[&str] = &[
+    ".Trash",
+    ".Trashes",
+    ".Spotlight-V100",
+    ".fseventsd",
+    ".DocumentRevisions-V100",
+    ".vol",
+    ".TemporaryItems",
+];
+
+/// Check if a path is protected (system folder that should never be deleted)
+fn is_protected(path: &std::path::Path) -> bool {
+    if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+        // Always block these system dirs regardless of where they are
+        if PROTECTED_NAMES.contains(&name) {
+            return true;
+        }
+    }
+    // Never delete top-level dirs on root or volumes
+    if let Some(parent) = path.parent() {
+        let parent_str = parent.to_string_lossy();
+        if parent_str == "/" || parent_str == "/Volumes" {
+            return true;
+        }
+        // Protect direct children of /Users (i.e. entire user home dirs)
+        if parent_str == "/Users" {
+            return true;
+        }
+        // Protect ~/Library and ~/Applications themselves (but NOT their contents)
+        if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+            if (name == "Library" || name == "Applications" || name == "Desktop" || name == "Documents" || name == "Downloads") {
+                // Only protect if this is a direct child of a user's home dir
+                if parent_str.starts_with("/Users/") && parent_str.matches('/').count() == 2 {
+                    return true;
+                }
+            }
+        }
+    }
+    false
+}
+
 #[tauri::command]
 pub async fn cleanup_items(
     app: tauri::AppHandle,
@@ -14,6 +56,22 @@ pub async fn cleanup_items(
 
     for (i, path_str) in paths.iter().enumerate() {
         let path = std::path::Path::new(path_str);
+
+        // Skip protected system paths
+        if is_protected(path) {
+            failed_items.push(CleanupError {
+                path: path_str.clone(),
+                reason: "Protected system path — skipped".to_string(),
+            });
+            // Still emit progress
+            if i % 100 == 0 || i == paths.len() - 1 {
+                let _ = app.emit(
+                    "cleanup://progress",
+                    serde_json::json!({ "completed": i as u64 + 1, "total": total }),
+                );
+            }
+            continue;
+        }
 
         // Calculate size before deletion
         let size = if path.is_dir() {

@@ -49,11 +49,11 @@ export function GSAPScanner3D() {
     <div ref={container} className="relative w-16 h-16 flex items-center justify-center shrink-0">
       <div className="gsap-scene relative w-full h-full flex items-center justify-center">
         {/* Rings */}
-        <div className="gsap-ring gsap-ring-outer absolute inset-0 rounded-full border border-accent-primary border-dashed opacity-60" />
-        <div className="gsap-ring gsap-ring-inner absolute inset-2 rounded-full border border-accent-primary opacity-40" />
+        <div className="gsap-ring gsap-ring-outer absolute inset-0 rounded-full border border-[#00F0FF] border-dashed opacity-60 shadow-[0_0_15px_rgba(0,240,255,0.3)]" />
+        <div className="gsap-ring gsap-ring-inner absolute inset-2 rounded-full border border-[#00F0FF] opacity-40" />
         
         {/* Core Icon */}
-        <div className="gsap-core relative z-10 flex items-center justify-center w-8 h-8 bg-accent-primary text-white rounded-none">
+        <div className="gsap-core relative z-10 flex items-center justify-center w-8 h-8 bg-[#00F0FF]/20 border border-[#00F0FF]/50 text-[#00F0FF] rounded-full shadow-[0_0_20px_rgba(0,240,255,0.5)]">
           <HardDrives size={16} weight="fill" />
         </div>
       </div>

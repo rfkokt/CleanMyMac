@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   Trash,
   ArrowClockwise,
@@ -7,17 +7,15 @@ import {
   CheckCircle,
 } from '@phosphor-icons/react';
 import { useDevTools } from '../hooks/use-dev-tools';
-import { useCleanup } from '../hooks/use-cleanup';
+import { useCleanupStore } from '../stores/cleanup-store';
 import { DevJunkList } from '../components/cleanup/DevJunkList';
 import { ConfirmDialog } from '../components/cleanup/ConfirmDialog';
-import { CleanupSummary } from '../components/cleanup/CleanupSummary';
 import { openInFinder } from '../services/tauri';
 import { formatBytes } from '../lib/format';
 import type { FileNode } from '../types';
 
 export default function DevTools() {
   const { items, isScanning, error, scan, totalSize, groupedByType } = useDevTools();
-  const { isCleaningUp, cleanupResult, cleanupProgress, cleanup, dismissResult } = useCleanup();
 
   const [selectedPaths, setSelectedPaths] = useState<Set<string>>(new Set());
   const [showConfirm, setShowConfirm] = useState(false);
@@ -91,13 +89,13 @@ export default function DevTools() {
             <>
               <button
                 onClick={() => setSelectedPaths(new Set())}
-                className="px-3 py-2 rounded-none text-xs font-medium text-text-secondary hover:text-text-primary bg-bg-secondary hover:bg-bg-secondary transition-all"
+                className="px-4 py-2 rounded-full text-xs font-medium text-white/70 hover:text-white bg-white/5 hover:bg-white/10 transition-all border border-white/10"
               >
                 Clear ({selectedPaths.size})
               </button>
               <button
                 onClick={() => setShowConfirm(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-none text-xs font-medium text-white bg-gradient-to-r from-caution to-caution/80 hover:opacity-90 transition-opacity"
+                className="flex items-center gap-2 px-5 py-2 rounded-full text-xs font-medium text-white bg-gradient-to-r from-red-500/80 to-rose-600/80 hover:opacity-90 transition-opacity shadow-[0_0_15px_rgba(225,29,72,0.4)]"
               >
                 <Trash size={14} />
                 Clean {formatBytes(selectedSize)}
@@ -107,7 +105,7 @@ export default function DevTools() {
           <button
             onClick={selectAllSafe}
             disabled={items.length === 0}
-            className="flex items-center gap-2 px-3 py-2 rounded-none text-xs font-medium text-safe bg-safe/10 hover:bg-safe/20 border border-safe/20 transition-all disabled:opacity-40"
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium text-[#0D9488] bg-[#0D9488]/10 hover:bg-[#0D9488]/20 border border-[#0D9488]/30 transition-all disabled:opacity-40"
           >
             <CheckCircle size={14} />
             Select Safe
@@ -115,7 +113,7 @@ export default function DevTools() {
           <button
             onClick={scan}
             disabled={isScanning}
-            className="flex items-center gap-2 px-4 py-2 rounded-none text-sm font-medium text-white bg-accent-primary hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium text-white bg-gradient-to-r from-[#0D9488] to-[#0EA5E9] shadow-[0_0_20px_rgba(13,148,136,0.4)] hover:shadow-[0_0_30px_rgba(13,148,136,0.6)] transition-all disabled:opacity-50"
           >
             {isScanning ? (
               <>
@@ -132,19 +130,18 @@ export default function DevTools() {
         </div>
       </div>
 
-      {/* Error */}
       {error && (
-        <div className="p-4 rounded-none bg-caution/10 border border-caution/20">
-          <p className="text-sm text-caution">{error}</p>
+        <div className="p-4 rounded-2xl glass border-red-500/20 bg-red-500/10">
+          <p className="text-sm text-red-400">{error}</p>
         </div>
       )}
 
       {/* Loading */}
       {isScanning && items.length === 0 && (
-        <div className="glass rounded-none p-12 flex flex-col items-center justify-center">
-          <Spinner size={32} className="text-accent-primary animate-spin mb-4" />
-          <p className="text-sm text-text-secondary">Scanning for developer junk...</p>
-          <p className="text-xs text-text-muted mt-1">Checking node_modules, Xcode, Docker, and more</p>
+        <div className="glass rounded-3xl p-12 flex flex-col items-center justify-center">
+          <Spinner size={32} className="text-[#00F0FF] animate-spin mb-4" />
+          <p className="text-sm text-white/80">Scanning for developer junk...</p>
+          <p className="text-xs text-white/50 mt-1">Checking node_modules, Xcode, Docker, and more</p>
         </div>
       )}
 
@@ -164,7 +161,7 @@ export default function DevTools() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="glass rounded-none p-4"
+                className="glass rounded-2xl p-5 border border-white/5"
               >
                 <p className="text-xs text-text-muted">{label}</p>
                 <p className="text-xl font-bold mt-1" style={{ color }}>
@@ -185,15 +182,14 @@ export default function DevTools() {
         </>
       )}
 
-      {/* Empty state */}
       {!isScanning && items.length === 0 && !error && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="glass rounded-none p-16 flex flex-col items-center justify-center text-center"
+          className="glass rounded-3xl p-16 flex flex-col items-center justify-center text-center border border-white/5"
         >
-          <div className="p-4 rounded-none bg-safe/10 mb-4">
-            <CheckCircle size={40} weight="duotone" className="text-safe" />
+          <div className="p-5 rounded-full bg-[#0D9488]/20 border border-[#0D9488]/30 shadow-[0_0_30px_rgba(13,148,136,0.3)] mb-6">
+            <CheckCircle size={48} weight="duotone" className="text-[#0D9488]" />
           </div>
           <h2 className="text-lg font-semibold text-text-primary">All Clean!</h2>
           <p className="text-sm text-text-secondary mt-2 max-w-md">
@@ -207,25 +203,15 @@ export default function DevTools() {
         isOpen={showConfirm}
         items={selectedItems}
         totalSize={selectedSize}
-        isCleaningUp={isCleaningUp}
-        progress={cleanupProgress}
-        onConfirm={async () => {
-          const result = await cleanup(Array.from(selectedPaths));
-          if (result) {
-            setShowConfirm(false);
-            setSelectedPaths(new Set());
-            scan(); // Re-scan after cleanup
-          }
+        onConfirm={async (permanent) => {
+          const paths = Array.from(selectedPaths);
+          setShowConfirm(false);
+          setSelectedPaths(new Set());
+          await useCleanupStore.getState().startCleanup(paths, permanent);
+          scan(); // Re-scan after cleanup
         }}
         onCancel={() => setShowConfirm(false)}
       />
-
-      {/* Cleanup result */}
-      <AnimatePresence>
-        {cleanupResult && (
-          <CleanupSummary result={cleanupResult} onDismiss={dismissResult} />
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 }

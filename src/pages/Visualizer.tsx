@@ -60,8 +60,8 @@ export default function Visualizer() {
       {/* Header */}
       <div className="flex items-center justify-between shrink-0">
         <div>
-          <h1 className="text-2xl font-bold text-text-primary">Visualizer</h1>
-          <p className="text-sm text-text-secondary mt-1">
+          <h1 className="text-2xl font-bold text-white">Visualizer</h1>
+          <p className="text-sm text-white/60 mt-1">
             {currentNode
               ? `${currentNode.name} — ${formatBytes(currentNode.size)}`
               : 'Interactive treemap of your disk usage'
@@ -72,7 +72,7 @@ export default function Visualizer() {
           <button
             onClick={handleStartScan}
             disabled={isScanning}
-            className="flex items-center gap-2 px-4 py-2 rounded-none text-sm font-medium text-white bg-accent-primary hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium text-white bg-gradient-to-r from-[#0D9488] to-[#0EA5E9] shadow-[0_0_20px_rgba(13,148,136,0.4)] hover:shadow-[0_0_30px_rgba(13,148,136,0.6)] transition-all disabled:opacity-50"
           >
             {isScanning ? (
               <>
@@ -91,14 +91,14 @@ export default function Visualizer() {
 
       {/* Scanning progress */}
       {isScanning && progress && (
-        <div className="glass rounded-none p-4 shrink-0">
+        <div className="glass rounded-2xl p-5 border border-white/10 shrink-0">
           <div className="flex items-center gap-3">
-            <Spinner size={16} className="text-accent-primary animate-spin" />
-            <span className="text-sm text-text-secondary">
+            <Spinner size={16} className="text-[#00F0FF] animate-spin" />
+            <span className="text-sm text-white/60">
               Scanning... {progress.scanned.toLocaleString()} files
             </span>
           </div>
-          <p className="text-xs text-text-muted truncate mt-1">{progress.current_path}</p>
+          <p className="text-xs text-white/40 truncate mt-1">{progress.current_path}</p>
         </div>
       )}
 
@@ -111,7 +111,7 @@ export default function Visualizer() {
           </div>
 
           {/* Treemap container */}
-          <div className="flex-1 min-h-0 glass rounded-none overflow-hidden">
+          <div className="flex-1 min-h-0 glass rounded-3xl overflow-hidden border border-white/5 p-2">
             <Treemap
               data={currentNode}
               onDrillDown={handleDrillDown}
@@ -119,11 +119,11 @@ export default function Visualizer() {
           </div>
 
           {/* Legend */}
-          <div className="flex items-center gap-4 flex-wrap text-xs text-text-muted shrink-0">
-            <span>Click a directory to zoom in • Use breadcrumbs to navigate back</span>
-            <span>•</span>
+          <div className="flex items-center gap-4 flex-wrap text-xs text-white/40 shrink-0">
+            <span>Click a directory to zoom in · Use breadcrumbs to navigate back</span>
+            <span className="text-white/20">·</span>
             <span>
-              {scanResult.file_count.toLocaleString()} files •{' '}
+              {scanResult.file_count.toLocaleString()} files ·{' '}
               {scanResult.dir_count.toLocaleString()} directories
             </span>
           </div>
@@ -136,19 +136,19 @@ export default function Visualizer() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="glass rounded-none p-16 flex flex-col items-center justify-center text-center"
+            className="glass rounded-3xl p-16 flex flex-col items-center justify-center text-center border border-white/5"
           >
-            <div className="p-4 rounded-none bg-accent-secondary/10 mb-4">
-              <ChartDonut size={40} weight="duotone" className="text-accent-secondary" />
+            <div className="p-5 rounded-full bg-[#00F0FF]/20 border border-[#00F0FF]/30 shadow-[0_0_30px_rgba(0,240,255,0.3)] mb-6">
+              <ChartDonut size={48} weight="duotone" className="text-[#00F0FF]" />
             </div>
-            <h2 className="text-lg font-semibold text-text-primary">No Scan Data</h2>
-            <p className="text-sm text-text-secondary mt-2 max-w-md">
+            <h2 className="text-lg font-semibold text-white">No Scan Data</h2>
+            <p className="text-sm text-white/60 mt-2 max-w-md">
               Run a scan first to see an interactive treemap visualization of your storage.
               Each rectangle represents a file or directory, sized by disk usage.
             </p>
             <button
               onClick={handleStartScan}
-              className="mt-6 flex items-center gap-2 px-6 py-3 rounded-none text-sm font-medium text-white bg-accent-primary hover:opacity-90 transition-opacity"
+              className="mt-8 flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium text-white bg-gradient-to-r from-[#0D9488] to-[#0EA5E9] shadow-[0_0_20px_rgba(13,148,136,0.4)] hover:shadow-[0_0_30px_rgba(13,148,136,0.6)] transition-all"
             >
               <MagnifyingGlass size={18} />
               Start Scanning
