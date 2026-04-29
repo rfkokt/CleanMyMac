@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trash, Warning, ShieldCheck, X } from '@phosphor-icons/react';
 import type { FileNode } from '../../types';
 import { formatBytes } from '../../lib/format';
+import { GSAPCleanup3D } from '../ui/GSAPCleanup3D';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -10,7 +11,7 @@ interface ConfirmDialogProps {
   totalSize: number;
   isCleaningUp: boolean;
   progress?: { completed: number; total: number } | null;
-  onConfirm: () => void;
+  onConfirm: (permanent: boolean) => void;
   onCancel: () => void;
 }
 
@@ -24,6 +25,7 @@ export function ConfirmDialog({
   onCancel,
 }: ConfirmDialogProps) {
   const [confirmText, setConfirmText] = useState('');
+  const [isPermanent, setIsPermanent] = useState(false);
 
   const hasCautionItems = items.some((i) => i.safety_level === 'Caution');
   const needsTyping = hasCautionItems;
@@ -53,51 +55,61 @@ export function ConfirmDialog({
             className="fixed inset-0 z-50 flex items-center justify-center p-8"
           >
             <div className="w-full max-w-lg rounded-none bg-bg-secondary border border-bg-tertiary shadow-2xl overflow-hidden">
-              {/* Header */}
-              <div className="p-6 pb-4 flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-none bg-caution/15">
-                    <Trash size={24} weight="duotone" className="text-caution" />
+              {/* Cleaning State (Full Animation) */}
+              {isCleaningUp && (
+                <div className="flex flex-col items-center justify-center p-12 text-center">
+                  <div className="mb-6">
+                    <GSAPCleanup3D isCleaningUp={isCleaningUp} />
                   </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-text-primary">
-                      {isCleaningUp ? 'Cleaning Up...' : 'Confirm Cleanup'}
-                    </h2>
-                    <p className="text-sm text-text-secondary mt-0.5">
-                      {isCleaningUp
-                        ? `${progress?.completed || 0} of ${progress?.total || items.length} items`
-                        : `${items.length} items • ${formatBytes(totalSize)}`
-                      }
-                    </p>
-                  </div>
-                </div>
-                {!isCleaningUp && (
-                  <button
-                    onClick={onCancel}
-                    className="p-1.5 rounded-none text-text-muted hover:text-text-primary hover:bg-bg-secondary transition-colors"
-                  >
-                    <X size={16} />
-                  </button>
-                )}
-              </div>
-
-              {/* Progress bar (when cleaning) */}
-              {isCleaningUp && progress && (
-                <div className="px-6 pb-4">
-                  <div className="w-full h-2 bg-bg-secondary rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full rounded-full bg-accent-primary"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(progress.completed / progress.total) * 100}%` }}
-                      transition={{ ease: 'easeOut' }}
-                    />
-                  </div>
+                  <h2 className="text-xl font-bold text-text-primary mb-2">
+                    Shredding Files...
+                  </h2>
+                  <p className="text-sm text-text-secondary mb-8">
+                    {progress?.completed.toLocaleString() || 0} of {progress?.total.toLocaleString() || items.length.toLocaleString()} items securely removed
+                  </p>
+                  
+                  {/* Progress bar */}
+                  {progress && (
+                    <div className="w-full max-w-sm">
+                      <div className="w-full h-2 bg-bg-tertiary rounded-none overflow-hidden">
+                        <motion.div
+                          className="h-full bg-caution"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${(progress.completed / progress.total) * 100}%` }}
+                          transition={{ ease: 'easeOut' }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* Summary */}
+              {/* Confirmation State (Idle) */}
               {!isCleaningUp && (
-                <div className="px-6 pb-4">
+                <>
+                  {/* Header */}
+                  <div className="p-6 pb-4 flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <GSAPCleanup3D isCleaningUp={isCleaningUp} />
+                      <div>
+                        <h2 className="text-lg font-bold text-text-primary">
+                          Confirm Cleanup
+                        </h2>
+                        <p className="text-sm text-text-secondary mt-0.5">
+                          {items.length.toLocaleString()} items • {formatBytes(totalSize)}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={onCancel}
+                      className="p-1.5 rounded-none text-text-muted hover:text-text-primary hover:bg-bg-secondary transition-colors"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  {/* Summary */}
+                  <div className="px-6 pb-4">
                   <div className="grid grid-cols-3 gap-3">
                     {safeCount > 0 && (
                       <div className="flex items-center gap-2 p-3 rounded-none bg-safe/10 border border-safe/20">
@@ -171,30 +183,55 @@ export function ConfirmDialog({
                     </div>
                   )}
 
-                  <p className="mt-3 text-xs text-text-muted">
-                    Items will be moved to Trash. You can restore them from Trash if needed.
-                  </p>
+                  <div className="mt-4 pt-3 border-t border-bg-tertiary">
+                    <label className="flex items-start gap-3 cursor-pointer group">
+                      <div className="relative flex items-center justify-center mt-0.5">
+                        <input
+                          type="checkbox"
+                          checked={isPermanent}
+                          onChange={(e) => setIsPermanent(e.target.checked)}
+                          className="peer appearance-none w-4 h-4 border border-bg-tertiary rounded-none bg-bg-secondary checked:bg-caution checked:border-caution transition-colors cursor-pointer"
+                        />
+                        <svg className="absolute w-3 h-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M1 5L4.5 8.5L13 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-text-primary group-hover:text-caution transition-colors">
+                          Permanently delete items
+                        </p>
+                        <p className="text-xs text-text-muted mt-0.5">
+                          Bypass Trash and free up space immediately. This action cannot be undone.
+                        </p>
+                      </div>
+                    </label>
+                  </div>
+
+                  {!isPermanent && (
+                    <p className="mt-3 text-xs text-text-muted">
+                      Items will be moved to Trash. You can restore them if needed.
+                    </p>
+                  )}
                 </div>
-              )}
 
               {/* Footer */}
-              {!isCleaningUp && (
                 <div className="p-6 pt-2 flex gap-3">
                   <button
                     onClick={onCancel}
-                    className="flex-1 px-4 py-2.5 rounded-none text-sm font-medium text-text-secondary hover:text-text-primary bg-bg-secondary hover:bg-bg-secondary transition-all"
+                    className="flex-1 px-4 py-2.5 rounded-none text-sm font-medium text-text-secondary hover:text-text-primary bg-bg-secondary hover:bg-bg-tertiary transition-all border border-bg-tertiary"
                   >
                     Cancel
                   </button>
                   <button
-                    onClick={onConfirm}
+                    onClick={() => onConfirm(isPermanent)}
                     disabled={!isConfirmEnabled}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-none text-sm font-medium text-white bg-gradient-to-r from-caution to-caution/80 hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-none text-sm font-medium text-white bg-caution hover:bg-caution/90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     <Trash size={16} />
                     Clean {formatBytes(totalSize)}
                   </button>
                 </div>
+                </>
               )}
             </div>
           </motion.div>

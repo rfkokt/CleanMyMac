@@ -17,6 +17,8 @@ import { FileList } from '../components/scanner/FileList';
 import { FilterBar } from '../components/scanner/FilterBar';
 import { ConfirmDialog } from '../components/cleanup/ConfirmDialog';
 import { CleanupSummary } from '../components/cleanup/CleanupSummary';
+import { GSAPScanner3D } from '../components/ui/GSAPScanner3D';
+import { ScanningPlaceholder } from '../components/scanner/ScanningPlaceholder';
 import { openInFinder } from '../services/tauri';
 import { formatBytes } from '../lib/format';
 import type { FileNode, FileCategory, SafetyLevel } from '../types';
@@ -151,23 +153,43 @@ export default function Scanner() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="glass rounded-none p-4"
+            className="glass rounded-none p-6 overflow-hidden"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-text-secondary">
-                Scanning... {progress.scanned.toLocaleString()} files
-              </span>
-              <Spinner size={16} className="text-accent-primary animate-spin" />
-            </div>
-            <p className="text-xs text-text-muted truncate">{progress.current_path}</p>
-            <div className="mt-2 w-full h-1 bg-bg-secondary rounded-full overflow-hidden">
-              <motion.div
-                className="h-full rounded-full bg-accent-primary"
-                animate={{ width: ['0%', '100%'] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-              />
+            <div className="flex items-center gap-6">
+              {/* GSAP 3D Animation */}
+              <GSAPScanner3D />
+              
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold text-text-primary">
+                    Scanning Storage...
+                  </span>
+                  <span className="text-sm font-medium text-accent-primary">
+                    {progress.scanned.toLocaleString()} files
+                  </span>
+                </div>
+                
+                <div className="w-full h-1.5 bg-bg-tertiary rounded-none overflow-hidden mb-2">
+                  <motion.div
+                    className="h-full bg-accent-primary"
+                    animate={{ width: ['0%', '100%'] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                  />
+                </div>
+                
+                <p className="text-xs text-text-muted truncate">
+                  {progress.current_path}
+                </p>
+              </div>
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Empty state filling skeleton grid */}
+      <AnimatePresence>
+        {isScanning && progress && (
+          <ScanningPlaceholder currentPath={progress.current_path} />
         )}
       </AnimatePresence>
 

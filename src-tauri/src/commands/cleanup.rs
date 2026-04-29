@@ -5,6 +5,7 @@ use tauri::Emitter;
 pub async fn cleanup_items(
     app: tauri::AppHandle,
     paths: Vec<String>,
+    permanent: bool,
 ) -> Result<CleanupResult, String> {
     let total = paths.len() as u64;
     let mut freed_bytes: u64 = 0;
@@ -21,8 +22,17 @@ pub async fn cleanup_items(
             std::fs::metadata(path).map(|m| m.len()).unwrap_or(0)
         };
 
-        // Move to trash (never permanent delete)
-        match trash::delete(path) {
+        let delete_result = if permanent {
+            if path.is_dir() {
+                std::fs::remove_dir_all(path).map_err(|e| e.to_string())
+            } else {
+                std::fs::remove_file(path).map_err(|e| e.to_string())
+            }
+        } else {
+            trash::delete(path).map_err(|e| e.to_string())
+        };
+
+        match delete_result {
             Ok(()) => {
                 freed_bytes += size;
                 items_deleted += 1;
@@ -30,19 +40,21 @@ pub async fn cleanup_items(
             Err(e) => {
                 failed_items.push(CleanupError {
                     path: path_str.clone(),
-                    reason: e.to_string(),
+                    reason: e,
                 });
             }
         }
 
-        // Emit progress
-        let _ = app.emit(
-            "cleanup://progress",
-            serde_json::json!({
-                "completed": i as u64 + 1,
-                "total": total,
-            }),
-        );
+        // Emit progress only every 100 items or on the last item to prevent IPC freezing
+        if i % 100 == 0 || i == paths.len() - 1 {
+            let _ = app.emit(
+                "cleanup://progress",
+                serde_json::json!({
+                    "completed": i as u64 + 1,
+                    "total": total,
+                }),
+            );
+        }
     }
 
     Ok(CleanupResult {

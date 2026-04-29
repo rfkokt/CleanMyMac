@@ -9,7 +9,7 @@ export function useCleanup() {
   const [cleanupProgress, setCleanupProgress] = useState<{ completed: number; total: number } | null>(null);
   const { selectedPaths, clearSelection } = useScanStore();
 
-  const cleanup = useCallback(async (paths?: string[]) => {
+  const cleanup = useCallback(async (paths?: string[], permanent: boolean = false) => {
     const targetPaths = paths || Array.from(selectedPaths);
     if (targetPaths.length === 0) return null;
 
@@ -21,7 +21,7 @@ export function useCleanup() {
     });
 
     try {
-      const result = await cleanupService(targetPaths);
+      const result = await cleanupService(targetPaths, permanent);
       setCleanupResult(result);
       clearSelection();
       return result;

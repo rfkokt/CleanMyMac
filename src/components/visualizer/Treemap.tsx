@@ -2,6 +2,7 @@ import { useMemo, useCallback } from 'react';
 import { ResponsiveTreeMap } from '@nivo/treemap';
 import type { FileNode } from '../../types';
 import { getCategoryColor } from '../../lib/format';
+import { TiltCard } from '../ui/TiltCard';
 
 interface TreemapProps {
   data: FileNode;
@@ -27,7 +28,8 @@ export function Treemap({ data, onDrillDown }: TreemapProps) {
   }, []);
 
   return (
-    <div className="w-full h-full min-h-[400px]">
+    <TiltCard className="w-full h-full min-h-[400px] shadow-2xl rounded-none border border-bg-tertiary">
+      <div className="w-full h-full">
       <ResponsiveTreeMap
         data={nivoData}
         identity="name"
@@ -71,7 +73,8 @@ export function Treemap({ data, onDrillDown }: TreemapProps) {
           },
         }}
       />
-    </div>
+      </div>
+    </TiltCard>
   );
 }
 

@@ -24,8 +24,8 @@ export const scanDevJunk = () =>
   invoke<DevJunkItem[]>('scan_dev_junk');
 
 // ── Cleanup ──
-export const cleanupItems = (paths: string[]) =>
-  invoke<CleanupResult>('cleanup_items', { paths });
+export const cleanupItems = (paths: string[], permanent: boolean = false) =>
+  invoke<CleanupResult>('cleanup_items', { paths, permanent });
 
 // ── File Operations ──
 export const openInFinder = (path: string) =>
