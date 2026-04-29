@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -51,6 +51,20 @@ export default function Dashboard() {
 
   const usageColor =
     usagePercent > 90 ? '#ef4444' : usagePercent > 70 ? '#f59e0b' : '#22c55e';
+
+  const computedCategories = useMemo(() => {
+    if (!scanResult?.root) return {};
+    const cats: Record<string, number> = {};
+    const walk = (node: typeof scanResult.root) => {
+      if (!node.is_dir) {
+        const cat = node.file_type || 'Other';
+        cats[cat] = (cats[cat] || 0) + node.size;
+      }
+      node.children?.forEach(walk);
+    };
+    walk(scanResult.root);
+    return cats;
+  }, [scanResult]);
 
   return (
     <motion.div
@@ -225,7 +239,7 @@ export default function Dashboard() {
           transition={{ delay: 0.1 }}
         >
           <CategoryChart
-            categories={scanResult.categories}
+            categories={computedCategories}
             totalSize={scanResult.total_size}
             onCategoryClick={() => {
               navigate('/scan');

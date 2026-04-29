@@ -81,7 +81,7 @@ function darkenColor(hex: string, factor: number): string {
 }
 
 export function Treemap({ data, onDrillDown }: TreemapProps) {
-  const nivoData = useMemo(() => transformToNivo(data, 2), [data]);
+  const nivoData = useMemo(() => transformToNivo(data, 1), [data]);
 
   const getColor = useCallback((node: any) => {
     const baseColor = getNodeColor(node.data as NivoNode, node.depth);
@@ -168,18 +168,32 @@ export function Treemap({ data, onDrillDown }: TreemapProps) {
   );
 }
 
-function transformToNivo(node: FileNode, maxDepth: number = 2): NivoNode {
-  if (maxDepth > 0 && node.children && node.children.length > 0) {
+function transformToNivo(node: FileNode, maxDepth: number = 1): NivoNode {
+  if (node.children && node.children.length > 0) {
     const significantChildren = node.children
       .filter((c) => c.size > 0)
       .sort((a, b) => b.size - a.size)
       .slice(0, 50);
 
+    if (maxDepth > 0) {
+      return {
+        name: node.name,
+        path: node.path,
+        fileType: node.file_type || 'Other',
+        children: significantChildren.map(c => transformToNivo(c, maxDepth - 1)),
+      };
+    }
+
     return {
       name: node.name,
       path: node.path,
       fileType: node.file_type || 'Other',
-      children: significantChildren.map(c => transformToNivo(c, maxDepth - 1)),
+      children: significantChildren.map(c => ({
+        name: c.name,
+        path: c.path,
+        fileType: c.file_type || 'Other',
+        size: c.size,
+      })),
     };
   }
 

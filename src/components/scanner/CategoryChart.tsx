@@ -15,11 +15,16 @@ export function CategoryChart({ categories, totalSize, onCategoryClick }: Catego
       .sort(([, a], [, b]) => b - a);
   }, [categories]);
 
+  const categoryTotal = useMemo(() => {
+    return sortedCategories.reduce((sum, [, size]) => sum + size, 0);
+  }, [sortedCategories]);
+
   // Calculate angles for donut chart
   const chartData = useMemo(() => {
     let currentAngle = 0;
+    const base = categoryTotal > 0 ? categoryTotal : totalSize;
     return sortedCategories.map(([category, size]) => {
-      const percentage = (size / totalSize) * 100;
+      const percentage = (size / base) * 100;
       const angle = (percentage / 100) * 360;
       const startAngle = currentAngle;
       currentAngle += angle;
@@ -32,7 +37,7 @@ export function CategoryChart({ categories, totalSize, onCategoryClick }: Catego
         color: getCategoryColor(category),
       };
     });
-  }, [sortedCategories, totalSize]);
+  }, [sortedCategories, categoryTotal, totalSize]);
 
   const radius = 80;
   const innerRadius = 55;
