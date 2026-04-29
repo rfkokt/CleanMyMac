@@ -9,6 +9,7 @@ import {
 import { useScanStore } from '../stores/scan-store';
 import { useScanner } from '../hooks/use-scanner';
 import { Treemap } from '../components/visualizer/Treemap';
+import { DirectoryList } from '../components/visualizer/DirectoryList';
 import { Breadcrumbs } from '../components/visualizer/Breadcrumbs';
 import { formatBytes } from '../lib/format';
 import type { FileNode } from '../types';
@@ -54,8 +55,9 @@ export default function Visualizer() {
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.15 }}
-      className="space-y-6 h-full flex flex-col"
+      className="h-full flex flex-col space-y-6"
     >
       {/* Header */}
       <div className="flex items-center justify-between shrink-0">
@@ -91,18 +93,39 @@ export default function Visualizer() {
 
       {/* Scanning progress */}
       {isScanning && progress && (
-        <div className="glass rounded-2xl p-5 border border-white/10 shrink-0">
-          <div className="flex items-center gap-3">
-            <Spinner size={16} className="text-[#00F0FF] animate-spin" />
-            <span className="text-sm text-white/60">
-              Scanning... {progress.scanned.toLocaleString()} files
-            </span>
+        <motion.div 
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          className="glass rounded-3xl p-6 border border-white/10 shrink-0 overflow-hidden"
+        >
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-semibold text-white flex items-center gap-2">
+                <Spinner size={16} className="text-[#00F0FF] animate-spin" />
+                Scanning Storage...
+              </span>
+              <span className="text-sm font-medium text-[#00F0FF]">
+                {progress.scanned.toLocaleString()} files
+              </span>
+            </div>
+            
+            <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden mb-2">
+              <motion.div
+                className="h-full bg-gradient-to-r from-[#0D9488] to-[#00F0FF] shadow-[0_0_10px_rgba(0,240,255,0.5)]"
+                animate={{ width: ['0%', '100%'] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+              />
+            </div>
+            
+            <p className="text-xs text-white/40 truncate">
+              {progress.current_path}
+            </p>
           </div>
-          <p className="text-xs text-white/40 truncate mt-1">{progress.current_path}</p>
-        </div>
+        </motion.div>
       )}
 
-      {/* Treemap */}
+      {/* Treemap / Directory List */}
       {scanResult && currentNode && !isScanning && (
         <>
           {/* Breadcrumbs */}
@@ -110,15 +133,15 @@ export default function Visualizer() {
             <Breadcrumbs path={breadcrumbPath} onNavigate={handleBreadcrumbNav} />
           </div>
 
-          {/* Treemap container */}
-          <div className="flex-1 min-h-0 glass rounded-3xl overflow-hidden border border-white/5 p-2">
-            <Treemap
+          {/* Directory List Container */}
+          <div className="flex-1 min-h-0 glass rounded-3xl overflow-hidden border border-white/5 py-2">
+            <DirectoryList
               data={currentNode}
               onDrillDown={handleDrillDown}
             />
           </div>
 
-          {/* Legend */}
+          {/* Info Footer */}
           <div className="flex items-center gap-4 flex-wrap text-xs text-white/40 shrink-0">
             <span>Click a directory to zoom in · Use breadcrumbs to navigate back</span>
             <span className="text-white/20">·</span>

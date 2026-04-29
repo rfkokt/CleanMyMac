@@ -12,7 +12,7 @@ function AnimatedRoutes() {
   const location = useLocation();
 
   return (
-    <AnimatePresence mode="popLayout">
+    <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Dashboard />} />
         <Route path="/scan" element={<Scanner />} />

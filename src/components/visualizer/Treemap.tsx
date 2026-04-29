@@ -1,7 +1,7 @@
 import { useMemo, useCallback } from 'react';
 import { ResponsiveTreeMap } from '@nivo/treemap';
 import type { FileNode } from '../../types';
-import { getCategoryColor } from '../../lib/format';
+
 
 interface TreemapProps {
   data: FileNode;

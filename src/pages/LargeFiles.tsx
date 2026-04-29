@@ -59,8 +59,9 @@ export default function LargeFiles() {
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.15 }}
-      className="space-y-6"
+      className="h-full flex flex-col"
     >
       {/* Header */}
       <div className="flex items-center justify-between">

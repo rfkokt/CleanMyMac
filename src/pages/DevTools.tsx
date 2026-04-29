@@ -70,8 +70,9 @@ export default function DevTools() {
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.15 }}
-      className="space-y-6"
+      className="h-full flex flex-col"
     >
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -147,9 +148,9 @@ export default function DevTools() {
 
       {/* Results */}
       {items.length > 0 && (
-        <>
+        <div className="flex-1 flex flex-col min-h-0 space-y-4 mt-6 pb-6">
           {/* Summary cards */}
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-4 gap-4 shrink-0">
             {[
               { label: 'Total Found', value: formatBytes(totalSize), color: '#6366f1' },
               { label: 'Items', value: items.length.toString(), color: '#8b5cf6' },
@@ -163,7 +164,7 @@ export default function DevTools() {
                 transition={{ delay: i * 0.05 }}
                 className="glass rounded-2xl p-5 border border-white/5"
               >
-                <p className="text-xs text-text-muted">{label}</p>
+                <p className="text-xs text-white/60">{label}</p>
                 <p className="text-xl font-bold mt-1" style={{ color }}>
                   {value}
                 </p>
@@ -172,14 +173,16 @@ export default function DevTools() {
           </div>
 
           {/* Junk list */}
-          <DevJunkList
-            groupedByType={groupedByType}
-            selectedPaths={selectedPaths}
-            onToggleSelect={toggleSelect}
-            onSelectGroup={selectGroup}
-            onOpenInFinder={(path) => openInFinder(path)}
-          />
-        </>
+          <div className="flex-1 overflow-y-auto pr-2 -mr-2">
+            <DevJunkList
+              groupedByType={groupedByType}
+              selectedPaths={selectedPaths}
+              onToggleSelect={toggleSelect}
+              onSelectGroup={selectGroup}
+              onOpenInFinder={(path) => openInFinder(path)}
+            />
+          </div>
+        </div>
       )}
 
       {!isScanning && items.length === 0 && !error && (

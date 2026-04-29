@@ -82,12 +82,18 @@ pub async fn cleanup_items(
 
         let delete_result = if permanent {
             if path.is_dir() {
-                std::fs::remove_dir_all(path).map_err(|e| e.to_string())
+                std::fs::remove_dir_all(path).map_err(|e| e)
             } else {
-                std::fs::remove_file(path).map_err(|e| e.to_string())
+                std::fs::remove_file(path).map_err(|e| e)
             }
         } else {
-            trash::delete(path).map_err(|e| e.to_string())
+            // Note: trash crate doesn't return io::Error, it returns its own Error
+            // We can check if path exists first
+            if !path.exists() {
+                Ok(())
+            } else {
+                trash::delete(path).map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e.to_string()))
+            }
         };
 
         match delete_result {
@@ -96,10 +102,16 @@ pub async fn cleanup_items(
                 items_deleted += 1;
             }
             Err(e) => {
-                failed_items.push(CleanupError {
-                    path: path_str.clone(),
-                    reason: e,
-                });
+                if e.kind() == std::io::ErrorKind::NotFound {
+                    // Already deleted (e.g. parent folder was deleted), count as success
+                    freed_bytes += size;
+                    items_deleted += 1;
+                } else {
+                    failed_items.push(CleanupError {
+                        path: path_str.clone(),
+                        reason: e.to_string(),
+                    });
+                }
             }
         }
 

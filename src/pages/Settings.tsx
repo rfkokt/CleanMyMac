@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Gear,
-  ShieldCheck,
-  ShieldWarning,
-  Info,
-  ArrowSquareOut,
-  ArrowClockwise,
+  Laptop,
+  Info as InfoIcon,
+  HardDrives,
+  Database,
+  ArrowDown,
+  Trash
 } from '@phosphor-icons/react';
 import { useDiskInfo } from '../hooks/use-disk-info';
 import { openSystemPreferences } from '../services/tauri';
@@ -19,144 +19,169 @@ export default function Settings() {
     refresh();
   }, [refresh]);
 
+  const usagePercent = diskInfo 
+    ? (diskInfo.used_space / diskInfo.total_capacity) * 100 
+    : 0;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.15 }}
-      className="space-y-6 max-w-2xl"
+      className="h-full flex flex-col"
     >
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-text-primary">Settings</h1>
-        <p className="text-sm text-text-secondary mt-1">
-          App preferences and system information
-        </p>
+      <div className="flex items-center justify-between shrink-0 mb-6">
+        <h1 className="text-3xl font-semibold text-white tracking-wide">My Activity</h1>
+        <span className="text-sm text-white/40">Device Information</span>
       </div>
 
-      {/* Full Disk Access */}
-      <div className="glass rounded-3xl p-6 space-y-4 border border-white/5">
-        <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-          <ShieldCheck size={18} weight="duotone" className="text-[#0D9488]" />
-          Permissions
-        </h2>
-        <div className="flex items-center justify-between py-4 border-t border-white/10">
-          <div className="flex items-center gap-4">
-            {hasFDA ? (
-              <div className="p-2 rounded-full bg-[#0D9488]/20 text-[#0D9488]">
-                <ShieldCheck size={20} />
+      <div className="flex-1 overflow-y-auto min-h-0 pr-4 -mr-4 space-y-4 pb-10">
+        {/* Top Row: 2-1-1 columns */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          
+          {/* Card 1: Mac Health (col-span-2) */}
+          <div className="lg:col-span-2 relative glass rounded-3xl overflow-hidden border border-white/5 p-6 flex flex-col justify-between min-h-[220px]">
+            {/* Background glowing circle */}
+            <div className="absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br from-[#00F0FF]/30 to-transparent rounded-full blur-3xl opacity-50 pointer-events-none" />
+            <div className="absolute right-10 top-1/2 -translate-y-1/2 opacity-80 pointer-events-none">
+              <Laptop size={120} weight="duotone" className="text-[#00F0FF]" />
+            </div>
+
+            <div className="relative z-10 space-y-1">
+              <p className="text-xs text-white/60 font-medium">Device Health:</p>
+              <div className="flex items-center gap-2">
+                <h2 className="text-3xl font-semibold text-[#00F0FF]">Good</h2>
+                <button className="p-0.5 rounded-full bg-white/10 text-white/60 hover:text-white transition-colors">
+                  <InfoIcon size={14} />
+                </button>
               </div>
-            ) : (
-              <div className="p-2 rounded-full bg-[#FF9F0A]/20 text-[#FF9F0A]">
-                <ShieldWarning size={20} />
+              <p className="text-xs text-white/50">Your System</p>
+            </div>
+
+            <div className="relative z-10 mt-12">
+              <div className="flex items-center justify-between text-sm font-medium mb-3">
+                <span className="text-white flex items-center gap-2">
+                  <HardDrives size={16} />
+                  Main Storage
+                </span>
+                <span className="text-white/60">
+                  {diskInfo ? `${formatBytes(diskInfo.used_space)} of ${formatBytes(diskInfo.total_capacity)} used` : 'Calculating...'}
+                </span>
               </div>
-            )}
-            <div>
-              <p className="text-sm font-medium text-white">Full Disk Access</p>
-              <p className="text-xs text-white/50 mt-0.5">
-                {hasFDA ? 'Granted — all directories accessible' : 'Not granted — some directories inaccessible'}
-              </p>
+              <div className="w-full h-2.5 bg-black/40 rounded-full overflow-hidden backdrop-blur-md border border-white/5">
+                <motion.div
+                  className="h-full bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${usagePercent}%` }}
+                  transition={{ duration: 1, ease: 'easeOut' }}
+                />
+              </div>
             </div>
           </div>
-          {!hasFDA && (
-            <button
-              onClick={() => {
-                openSystemPreferences().catch(console.error);
-              }}
-              className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium text-white bg-[#FF9F0A] hover:bg-[#FF9F0A]/80 shadow-[0_0_15px_rgba(255,159,10,0.4)] transition-all"
-            >
-              <ArrowSquareOut size={14} />
-              Open Settings
+
+          {/* Card 2: Permissions / FDA (col-span-1) */}
+          <div className="glass rounded-3xl p-6 border border-white/5 flex flex-col relative min-h-[220px]">
+            <button className="absolute top-4 right-4 p-1 rounded-full bg-white/5 text-white/40 hover:text-white transition-colors">
+              <InfoIcon size={14} />
             </button>
-          )}
-        </div>
-        <div className="flex items-center justify-end">
-          <button
-            onClick={refresh}
-            className="flex items-center gap-1.5 text-xs text-text-muted hover:text-text-secondary transition-colors"
-          >
-            <ArrowClockwise size={12} />
-            Recheck
-          </button>
-        </div>
-      </div>
+            <p className="text-xs text-white/60 font-medium mb-1">Disk Access</p>
+            <h2 className="text-2xl font-semibold text-white">
+              {hasFDA ? 'Granted' : 'Limited'}
+            </h2>
+            <p className="text-xs text-white/40 mt-1">
+              {hasFDA ? 'Full system accessible' : 'Action required'}
+            </p>
 
-      {/* Disk Info */}
-      {diskInfo && (
-        <div className="glass rounded-3xl p-6 space-y-3 border border-white/5">
-          <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-            <Info size={18} weight="duotone" className="text-[#0D9488]" />
-            System Information
-          </h2>
-          <div className="space-y-3 pt-3 border-t border-white/10">
-            {[
-              { label: 'Total Capacity', value: formatBytes(diskInfo.total_capacity) },
-              { label: 'Used Space', value: formatBytes(diskInfo.used_space) },
-              { label: 'Available Space', value: formatBytes(diskInfo.available_space) },
-              ...(diskInfo.purgeable_space ? [{ label: 'Purgeable', value: formatBytes(diskInfo.purgeable_space) }] : []),
-            ].map(({ label, value }) => (
-              <div key={label} className="flex items-center justify-between">
-                <span className="text-sm text-text-secondary">{label}</span>
-                <span className="text-sm text-text-primary font-medium tabular-nums">{value}</span>
+            <div className="mt-auto">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${hasFDA ? 'bg-[#00F0FF]' : 'bg-[#FF9F0A]'}`} />
+                    <span className="text-white/60">Status</span>
+                  </div>
+                  <span className="text-white">{hasFDA ? 'Active' : 'Warning'}</span>
+                </div>
               </div>
-            ))}
+              
+              {!hasFDA && (
+                <button
+                  onClick={() => openSystemPreferences().catch(console.error)}
+                  className="w-full mt-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-colors border border-white/10"
+                >
+                  Grant Access
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      )}
 
-      {/* About */}
-      <div className="glass rounded-3xl p-6 space-y-3 border border-white/5">
-        <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-          <Gear size={18} weight="duotone" className="text-[#0D9488]" />
-          About
-        </h2>
-        <div className="space-y-3 pt-3 border-t border-white/10">
-          {[
-            { label: 'Version', value: '0.1.0' },
-            { label: 'Framework', value: 'Tauri v2' },
-            { label: 'Frontend', value: 'React 19 + TypeScript' },
-            { label: 'Backend', value: 'Rust' },
-            { label: 'Platform', value: 'macOS' },
-          ].map(({ label, value }) => (
-            <div key={label} className="flex items-center justify-between">
-              <span className="text-sm text-text-secondary">{label}</span>
-              <span className="text-sm text-text-primary">{value}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+          {/* Card 3: About / App Info (col-span-1) */}
+          <div className="glass rounded-3xl p-6 border border-white/5 flex flex-col relative min-h-[220px]">
+            <button className="absolute top-4 right-4 p-1 rounded-full bg-white/5 text-white/40 hover:text-white transition-colors">
+              <InfoIcon size={14} />
+            </button>
+            <p className="text-xs text-white/60 font-medium mb-1">App Version</p>
+            <h2 className="text-2xl font-semibold text-white">v0.1.0</h2>
+            <p className="text-xs text-white/40 mt-1">Antigravity Core</p>
 
-      {/* Cleanup behavior */}
-      <div className="glass rounded-3xl p-6 space-y-3 border border-white/5">
-        <h2 className="text-sm font-semibold text-white">Cleanup Behavior</h2>
-        <div className="space-y-3 pt-3 border-t border-white/10">
-          <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
-            <div className="mt-0.5 w-2 h-2 rounded-full bg-[#0D9488] shrink-0 shadow-[0_0_10px_#0D9488]" />
-            <div>
-              <p className="text-sm font-medium text-white">Safe deletion only</p>
-              <p className="text-xs text-white/50 mt-1">
-                All deletions use macOS Trash — files can be recovered anytime
+            <div className="mt-auto space-y-3">
+              <p className="text-xs text-white/60 leading-relaxed">
+                Antigravity Storage Engine powered by React, Framer Motion, and Rust.
               </p>
+              <button 
+                onClick={refresh}
+                className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-sm font-medium transition-colors border border-white/10 flex items-center justify-center gap-2"
+              >
+                Refresh Data
+              </button>
             </div>
           </div>
-          <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
-            <div className="mt-0.5 w-2 h-2 rounded-full bg-[#FF9F0A] shrink-0 shadow-[0_0_10px_#FF9F0A]" />
+
+        </div>
+
+        {/* Bottom Row: Detailed Storage Info */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          
+          {/* Card 4: Total Capacity */}
+          <div className="glass rounded-3xl p-6 border border-white/5 flex items-center gap-5 relative">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center shrink-0 border border-white/10">
+              <Database size={24} weight="duotone" className="text-white" />
+            </div>
             <div>
-              <p className="text-sm font-medium text-white">Safety ratings</p>
-              <p className="text-xs text-white/50 mt-1">
-                Items rated 🟢 Safe, 🟡 Review, or 🔴 Caution to prevent accidental data loss
-              </p>
+              <p className="text-xs text-white/60 font-medium mb-1">Total Capacity</p>
+              <h3 className="text-xl font-semibold text-white">
+                {diskInfo ? formatBytes(diskInfo.total_capacity) : '---'}
+              </h3>
             </div>
           </div>
-          <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
-            <div className="mt-0.5 w-2 h-2 rounded-full bg-[#E11D48] shrink-0 shadow-[0_0_10px_#E11D48]" />
+
+          {/* Card 5: Available Space */}
+          <div className="glass rounded-3xl p-6 border border-white/5 flex items-center gap-5 relative">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#00F0FF]/20 to-[#00F0FF]/5 flex items-center justify-center shrink-0 border border-[#00F0FF]/20">
+              <ArrowDown size={24} weight="duotone" className="text-[#00F0FF]" />
+            </div>
             <div>
-              <p className="text-sm font-medium text-white">Extra confirmation</p>
-              <p className="text-xs text-white/50 mt-1">
-                Caution-rated items require typing "DELETE" to confirm
-              </p>
+              <p className="text-xs text-white/60 font-medium mb-1">Available Space</p>
+              <h3 className="text-xl font-semibold text-white">
+                {diskInfo ? formatBytes(diskInfo.available_space) : '---'}
+              </h3>
             </div>
           </div>
+
+          {/* Card 6: Purgeable Space */}
+          <div className="glass rounded-3xl p-6 border border-white/5 flex items-center gap-5 relative">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#BF5AF2]/20 to-[#BF5AF2]/5 flex items-center justify-center shrink-0 border border-[#BF5AF2]/20">
+              <Trash size={24} weight="duotone" className="text-[#BF5AF2]" />
+            </div>
+            <div>
+              <p className="text-xs text-white/60 font-medium mb-1">Purgeable Space</p>
+              <h3 className="text-xl font-semibold text-white">
+                {diskInfo && diskInfo.purgeable_space ? formatBytes(diskInfo.purgeable_space) : 'Zero Bytes'}
+              </h3>
+            </div>
+          </div>
+
         </div>
       </div>
     </motion.div>

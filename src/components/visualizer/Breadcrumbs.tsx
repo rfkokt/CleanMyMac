@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { CaretRight, House } from '@phosphor-icons/react';
 import type { FileNode } from '../../types';
-import { formatBytes } from '../../lib/format';
+
 
 interface BreadcrumbsProps {
   path: FileNode[];

@@ -23,13 +23,14 @@ export function ConfirmDialog({
   const [confirmText, setConfirmText] = useState('');
   const [isPermanent, setIsPermanent] = useState(false);
 
-  const hasCautionItems = items.some((i) => i.safety_level === 'Caution');
+  const safeItems = items || [];
+  const hasCautionItems = safeItems.some((i) => i.safety_level === 'Caution');
   const needsTyping = hasCautionItems;
   const isConfirmEnabled = !needsTyping || confirmText.toUpperCase() === 'DELETE';
 
-  const safeCount = items.filter((i) => i.safety_level === 'Safe').length;
-  const reviewCount = items.filter((i) => i.safety_level === 'Review').length;
-  const cautionCount = items.filter((i) => i.safety_level === 'Caution').length;
+  const safeCount = safeItems.filter((i) => i.safety_level === 'Safe').length;
+  const reviewCount = safeItems.filter((i) => i.safety_level === 'Review').length;
+  const cautionCount = safeItems.filter((i) => i.safety_level === 'Caution').length;
 
   return (
     <AnimatePresence>

@@ -47,6 +47,9 @@ export const useScanStore = create<ScanStore>((set, get) => ({
       for (const item of items) {
         if (item.safety_level === 'Safe') {
           safePaths.add(item.path);
+          // If a directory is Safe, we'll delete it entirely. 
+          // No need to individually select its thousands of children.
+          continue; 
         }
         if (item.children) collect(item.children);
       }

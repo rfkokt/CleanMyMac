@@ -20,37 +20,39 @@ const navItems = [
 export function Sidebar() {
   const location = useLocation();
   return (
-    <aside className="w-64 h-full flex flex-col bg-white/5 backdrop-blur-md border-r border-white/10 z-50">
+    <aside className="w-20 h-full flex flex-col bg-white/5 backdrop-blur-md border-r border-white/10 z-50">
       {/* Drag region for macOS title bar */}
-      <div className="drag-region h-12 flex items-end px-5 pb-2">
-        <span className="no-drag text-sm font-semibold text-white/80 tracking-wide">
-          CleanMyMac
-        </span>
+      <div className="drag-region h-12 w-full flex items-center justify-center pt-2">
+        {/* The macOS traffic lights usually go here on the left, so we just leave space */}
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-2">
+      <nav className="flex-1 px-3 py-6 flex flex-col items-center space-y-4 mt-4">
         {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
-              `no-drag flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-300 ${
+              `no-drag flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 group relative ${
                 isActive
                   ? 'bg-white/20 text-white shadow-lg border border-white/20'
                   : 'text-white/60 hover:text-white hover:bg-white/10'
               }`
             }
           >
-            <Icon size={22} weight={location.pathname === to ? "fill" : "duotone"} />
-            {label}
+            <Icon size={24} weight={location.pathname === to ? "fill" : "duotone"} />
+            
+            {/* Custom Tooltip */}
+            <span className="absolute left-full ml-4 px-3 py-1.5 bg-black/80 backdrop-blur-md border border-white/10 text-white text-xs font-medium rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap shadow-xl z-[100] translate-x-[-10px] group-hover:translate-x-0">
+              {label}
+            </span>
           </NavLink>
         ))}
       </nav>
 
       {/* Footer */}
-      <div className="px-5 py-4 border-t border-white/10">
-        <p className="text-xs text-white/40">v0.1.0</p>
+      <div className="py-4 flex justify-center border-t border-white/10">
+        <p className="text-[10px] text-white/40 font-medium">v0.1</p>
       </div>
     </aside>
   );
