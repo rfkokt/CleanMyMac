@@ -9,7 +9,6 @@ import {
 import { useScanStore } from '../stores/scan-store';
 import { useScanner } from '../hooks/use-scanner';
 import { Treemap } from '../components/visualizer/Treemap';
-import { DirectoryList } from '../components/visualizer/DirectoryList';
 import { Breadcrumbs } from '../components/visualizer/Breadcrumbs';
 import { formatBytes } from '../lib/format';
 import type { FileNode } from '../types';
@@ -133,9 +132,9 @@ export default function Visualizer() {
             <Breadcrumbs path={breadcrumbPath} onNavigate={handleBreadcrumbNav} />
           </div>
 
-          {/* Directory List Container */}
-          <div className="flex-1 min-h-0 glass rounded-3xl overflow-hidden border border-white/5 py-2">
-            <DirectoryList
+          {/* Treemap Container */}
+          <div className="flex-1 min-h-0 glass rounded-3xl overflow-hidden border border-white/5">
+            <Treemap
               data={currentNode}
               onDrillDown={handleDrillDown}
             />
@@ -143,7 +142,7 @@ export default function Visualizer() {
 
           {/* Info Footer */}
           <div className="flex items-center gap-4 flex-wrap text-xs text-white/40 shrink-0">
-            <span>Click a directory to zoom in · Use breadcrumbs to navigate back</span>
+            <span>Click a block to zoom in · Use breadcrumbs to navigate back</span>
             <span className="text-white/20">·</span>
             <span>
               {scanResult.file_count.toLocaleString()} files ·{' '}
@@ -167,7 +166,7 @@ export default function Visualizer() {
             <h2 className="text-lg font-semibold text-white">No Scan Data</h2>
             <p className="text-sm text-white/60 mt-2 max-w-md">
               Run a scan first to see an interactive treemap visualization of your storage.
-              Each rectangle represents a file or directory, sized by disk usage.
+              Each colored block represents a folder or file, sized by disk usage.
             </p>
             <button
               onClick={handleStartScan}

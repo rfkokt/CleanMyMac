@@ -1,18 +1,39 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Spinner, Broom } from '@phosphor-icons/react';
+import {
+  Play,
+  Trash,
+  CheckCircle,
+  Lightning,
+  CaretRight,
+  House,
+  Spinner,
+} from '@phosphor-icons/react';
 import { useScanStore } from '../stores/scan-store';
 import { useCleanupStore } from '../stores/cleanup-store';
 import { useScanner } from '../hooks/use-scanner';
-import { CleanupManager } from '../components/scanner/CleanupManager';
+import { FileList } from '../components/scanner/FileList';
+import { FilterBar } from '../components/scanner/FilterBar';
 import { ConfirmDialog } from '../components/cleanup/ConfirmDialog';
+import { ScanningPlaceholder } from '../components/scanner/ScanningPlaceholder';
+import { GlassIcon } from '../components/ui/GlassIcon';
+import { openInFinder } from '../services/tauri';
 import { formatBytes } from '../lib/format';
+import type { FileNode, FileCategory, SafetyLevel } from '../types';
+
+type SortKey = 'name' | 'size' | 'file_type' | 'safety_level' | 'last_modified';
 
 export default function Scanner() {
   const { scanResult, isScanning, progress, selectedPaths } = useScanStore();
-  const { toggleSelected, clearSelection } = useScanStore();
+  const { toggleSelected, selectAllSafe, clearSelection } = useScanStore();
   const { scan } = useScanner();
 
+  // Drill-down state
+  const [navStack, setNavStack] = useState<FileNode[]>([]);
+  const [sortBy, setSortBy] = useState<SortKey>('size');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [categoryFilter, setCategoryFilter] = useState<FileCategory[]>([]);
+  const [safetyFilter, setSafetyFilter] = useState<SafetyLevel[]>([]);
   const [showConfirm, setShowConfirm] = useState(false);
 
   // Auto remove items from UI when cleanup finishes
@@ -21,7 +42,7 @@ export default function Scanner() {
   useEffect(() => {
     if (cleanupResult && cleanupResult !== prevResultRef.current && scanResult) {
       const successfulPaths = cleanupResult.items_deleted > 0 
-        ? Array.from(selectedPaths) 
+        ? Array.from(selectedPaths)
         : [];
       
       if (successfulPaths.length > 0) {
@@ -32,46 +53,83 @@ export default function Scanner() {
     prevResultRef.current = cleanupResult;
   }, [cleanupResult, scanResult, clearSelection, selectedPaths]);
 
+  // Current view — either root or drilled-down
+  const currentNode = navStack.length > 0 ? navStack[navStack.length - 1] : scanResult?.root;
+  const currentChildren = currentNode?.children || [];
+
+  const handleSort = useCallback((key: SortKey) => {
+    if (key === sortBy) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortBy(key);
+      setSortDir(key === 'name' ? 'asc' : 'desc');
+    }
+  }, [sortBy]);
+
+  const handleDrillDown = useCallback((node: FileNode) => {
+    if (node.is_dir && node.children) {
+      setNavStack((stack) => [...stack, node]);
+    }
+  }, []);
+
+  const handleBreadcrumbNav = useCallback((index: number) => {
+    if (index === -1) {
+      setNavStack([]);
+    } else {
+      setNavStack((stack) => stack.slice(0, index + 1));
+    }
+  }, []);
+
   const handleStartScan = async () => {
     try {
       const homeDir = await import('@tauri-apps/api/path')
         .then((m) => m.homeDir())
         .catch(() => '/');
-      scan(homeDir, 4); // Deep scan for comprehensive cleanup manager
+      setNavStack([]);
+      scan(homeDir, 3);
     } catch (e) {
       console.error(e);
     }
   };
 
-  // Helper for selecting multiple paths from a group in CleanupManager
-  const handleSelectGroup = (paths: string[]) => {
-    const store = useScanStore.getState();
-    const currentPaths = new Set(store.selectedPaths);
-    let allSelected = true;
-    for (const p of paths) {
-      if (!currentPaths.has(p)) {
-        allSelected = false;
-        break;
+  // Filter and sort
+  const displayItems = useMemo(() => {
+    let items = [...currentChildren];
+
+    if (categoryFilter.length > 0) {
+      items = items.filter((i) => i.file_type && categoryFilter.includes(i.file_type as FileCategory));
+    }
+    if (safetyFilter.length > 0) {
+      items = items.filter((i) => i.safety_level && safetyFilter.includes(i.safety_level));
+    }
+
+    items.sort((a, b) => {
+      let aVal = a[sortBy];
+      let bVal = b[sortBy];
+
+      if (sortBy === 'safety_level') {
+        const order = { Safe: 1, Review: 2, Caution: 3 };
+        aVal = order[a.safety_level as keyof typeof order] || 4;
+        bVal = order[b.safety_level as keyof typeof order] || 4;
       }
-    }
 
-    if (allSelected) {
-      // deselect all
-      paths.forEach(p => currentPaths.delete(p));
-    } else {
-      // select all
-      paths.forEach(p => currentPaths.add(p));
-    }
-    
-    paths.forEach(p => store.toggleSelected(p));
-  };
+      if (aVal === bVal) return 0;
+      if (aVal === undefined) return 1;
+      if (bVal === undefined) return -1;
 
-  // Calculate selected items list for the ConfirmDialog
+      const factor = sortDir === 'asc' ? 1 : -1;
+      return aVal < bVal ? -1 * factor : 1 * factor;
+    });
+
+    return items;
+  }, [currentChildren, sortBy, sortDir, categoryFilter, safetyFilter]);
+
+  // Selected items list for ConfirmDialog
   const selectedItemsList = useMemo(() => {
-    const found: any[] = [];
+    const found: FileNode[] = [];
     const paths = new Set(selectedPaths);
     
-    const findNodes = (node: any) => {
+    const findNodes = (node: FileNode) => {
       if (paths.has(node.path)) {
         found.push(node);
       }
@@ -80,14 +138,28 @@ export default function Scanner() {
       }
     };
     
-    if (scanResult) findNodes(scanResult.root);
+    if (scanResult && scanResult.root) findNodes(scanResult.root);
     return found;
   }, [scanResult, selectedPaths]);
 
-  // Calculate selected total size
-  const selectedSize = useMemo(() => {
-    return selectedItemsList.reduce((total, node) => total + node.size, 0);
+  const totalSelectedSize = useMemo(() => {
+    return selectedItemsList.reduce((acc, curr) => acc + curr.size, 0);
   }, [selectedItemsList]);
+
+
+  if (isScanning && !scanResult) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.15 }}
+        className="h-full"
+      >
+        <ScanningPlaceholder currentPath={progress?.current_path || ''} />
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -98,30 +170,47 @@ export default function Scanner() {
       className="space-y-6 h-full flex flex-col"
     >
       {/* Header */}
-      <div className="flex items-center justify-between shrink-0">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-wide">Cleanup Manager</h1>
-          <p className="text-sm text-white/40 mt-1">
+          <h1 className="text-2xl font-bold text-text-primary">Scanner</h1>
+          <p className="text-sm text-text-secondary mt-1">
             {scanResult
-              ? `${scanResult.file_count.toLocaleString()} files • ${formatBytes(scanResult.total_size)} total`
-              : 'Scan your disk to identify unused files and caches'
+              ? `${scanResult.file_count.toLocaleString()} files • ${scanResult.dir_count.toLocaleString()} folders • ${formatBytes(scanResult.total_size)}`
+              : 'Scan your disk to analyze storage usage'
             }
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {selectedPaths.size > 0 && (
+            <>
+              <button
+                onClick={clearSelection}
+                className="px-3 py-2 rounded-xl text-xs font-medium text-text-secondary hover:text-text-primary bg-bg-secondary hover:bg-bg-secondary transition-all border border-white/5"
+              >
+                Clear ({selectedPaths.size})
+              </button>
+              <button
+                onClick={() => setShowConfirm(true)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium text-white bg-gradient-to-r from-caution to-caution/80 hover:opacity-90 transition-opacity shadow-lg shadow-caution/20 border border-caution/50"
+              >
+                <Trash size={14} />
+                Clean {formatBytes(totalSelectedSize)}
+              </button>
+            </>
+          )}
           <button
             onClick={handleStartScan}
             disabled={isScanning}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-white/5 hover:bg-white/10 transition-colors disabled:opacity-50 border border-white/10"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white bg-accent-secondary/70 hover:bg-accent-secondary/90 transition-opacity disabled:opacity-50 border border-accent-secondary/30 shadow-lg shadow-accent-secondary/10"
           >
             {isScanning ? (
               <>
-                <Spinner size={16} className="animate-spin text-[#00F0FF]" />
+                <Spinner size={16} className="animate-spin" />
                 Scanning...
               </>
             ) : (
               <>
-                <Play size={16} weight="fill" className={scanResult ? 'text-[#00F0FF]' : 'text-white'} />
+                <Play size={16} weight="fill" />
                 {scanResult ? 'Re-scan' : 'Start Scan'}
               </>
             )}
@@ -129,96 +218,109 @@ export default function Scanner() {
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 min-h-0 relative flex flex-col">
-        {isScanning ? (
-          <div className="absolute inset-0 flex items-center justify-center glass rounded-3xl border border-white/5 z-10 flex-col">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#0D9488]/20 to-[#00F0FF]/10 flex items-center justify-center shadow-[0_0_30px_rgba(0,240,255,0.2)] mb-6 border border-[#00F0FF]/20">
-              <Spinner size={32} className="text-[#00F0FF] animate-spin" />
-            </div>
-            <h2 className="text-xl font-semibold text-white mb-2">Analyzing Storage...</h2>
-            <p className="text-sm text-white/50 mb-6">{progress ? progress.current_path : 'Preparing scan...'}</p>
-            
-            {progress && (
-              <div className="w-64 max-w-sm flex flex-col items-center">
-                <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden mb-2 shadow-inner border border-white/5">
-                  <motion.div
-                    className="h-full bg-gradient-to-r from-[#0D9488] to-[#00F0FF] shadow-[0_0_10px_rgba(0,240,255,0.5)]"
-                    animate={{ width: ['0%', '100%'] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-                  />
-                </div>
-                <span className="text-xs text-[#00F0FF] font-medium">{progress.scanned.toLocaleString()} files scanned</span>
-              </div>
-            )}
-          </div>
-        ) : !scanResult ? (
-          <div className="absolute inset-0 flex items-center justify-center glass rounded-3xl border border-white/5 z-10">
-            <div className="text-center">
-              <div className="w-20 h-20 mx-auto rounded-3xl bg-white/5 flex items-center justify-center mb-6 shadow-xl border border-white/10">
-                <Broom size={36} weight="duotone" className="text-white/40" />
-              </div>
-              <h2 className="text-xl font-semibold text-white mb-2">Ready to Clean</h2>
-              <p className="text-sm text-white/40 max-w-sm">
-                Start a scan to safely identify unnecessary files, caches, and logs that can be removed to free up space.
-              </p>
-            </div>
-          </div>
-        ) : null}
-
-        {/* The 3-pane Layout */}
-        {scanResult && !isScanning && (
-          <CleanupManager 
-            rootNode={scanResult.root} 
-            selectedPaths={selectedPaths}
-            onToggleSelect={toggleSelected}
-            onSelectGroup={handleSelectGroup}
-          />
-        )}
-      </div>
-
-      {/* Bottom Action Bar */}
+      {/* Scanning progress */}
       <AnimatePresence>
-        {selectedPaths.size > 0 && !isScanning && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="shrink-0 glass rounded-2xl p-3 border border-white/10 flex items-center justify-between pl-6 shadow-2xl bg-black/40 backdrop-blur-xl"
+        {isScanning && progress && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+            animate={{ opacity: 1, height: 'auto', marginBottom: 24 }}
+            exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+            className="glass rounded-2xl p-5 border border-white/5 overflow-hidden"
           >
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-semibold text-white">{selectedPaths.size} Items Selected</span>
-              <span className="text-white/20">|</span>
-              <span className="text-sm text-[#00F0FF] font-medium">{formatBytes(selectedSize)}</span>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <button
-                onClick={clearSelection}
-                className="px-4 py-2 rounded-xl text-xs font-medium text-white/50 hover:text-white transition-colors hover:bg-white/5"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => setShowConfirm(true)}
-                className="px-8 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-pink-500 to-rose-500 hover:opacity-90 transition-opacity shadow-[0_0_20px_rgba(236,72,153,0.4)]"
-              >
-                Clean Up
-              </button>
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-4">
+                <GlassIcon icon={<Lightning size={24} />} color="indigo" />
+                <div>
+                  <h3 className="text-sm font-semibold text-text-primary">
+                    Deep scanning in progress...
+                  </h3>
+                  <p className="text-xs text-text-secondary mt-1 font-mono truncate max-w-xl">
+                    {progress.current_path}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-medium text-accent-primary">
+                  {progress.scanned.toLocaleString()} files
+                </p>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Results */}
+      {scanResult && !isScanning && (
+        <div className="flex-1 flex flex-col min-h-0 glass rounded-3xl border border-white/5 overflow-hidden">
+          {/* Breadcrumbs & Actions */}
+          <div className="flex items-center justify-between p-4 border-b border-white/5 shrink-0 bg-white/[0.02]">
+            <div className="flex items-center gap-2 text-sm">
+              <button
+                onClick={() => handleBreadcrumbNav(-1)}
+                className="text-text-muted hover:text-accent-primary transition-colors flex items-center gap-1"
+              >
+                <House size={16} />
+                <span className="sr-only">Root</span>
+              </button>
+              {navStack.map((node, idx) => (
+                <div key={node.path} className="flex items-center gap-2">
+                  <CaretRight size={14} className="text-text-muted" />
+                  <button
+                    onClick={() => handleBreadcrumbNav(idx)}
+                    className="text-text-secondary hover:text-accent-primary transition-colors max-w-[150px] truncate"
+                  >
+                    {node.name}
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => selectAllSafe(displayItems)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-accent-secondary bg-accent-secondary/10 hover:bg-accent-secondary/20 transition-colors border border-accent-secondary/20"
+              >
+                <CheckCircle size={14} />
+                Select Safe
+              </button>
+            </div>
+          </div>
+
+          <div className="px-4 py-3 border-b border-white/5 shrink-0 bg-white/[0.01]">
+            <FilterBar
+              categoryFilter={categoryFilter}
+              safetyFilter={safetyFilter}
+              onCategoryChange={setCategoryFilter}
+              onSafetyChange={setSafetyFilter}
+            />
+          </div>
+
+          <div className="flex-1 overflow-hidden p-2">
+            <FileList
+              nodes={displayItems}
+              selectedPaths={selectedPaths}
+              onToggleSelect={toggleSelected}
+              onNavigate={handleDrillDown}
+              onOpenInFinder={(path) => openInFinder(path)}
+              sortBy={sortBy}
+              sortDir={sortDir}
+              onSort={handleSort}
+              categoryFilter={categoryFilter}
+              safetyFilter={safetyFilter}
+            />
+          </div>
+        </div>
+      )}
+
       <ConfirmDialog
         isOpen={showConfirm}
-        onCancel={() => setShowConfirm(false)}
         items={selectedItemsList}
-        totalSize={selectedSize}
+        totalSize={totalSelectedSize}
         onConfirm={(permanent) => {
           setShowConfirm(false);
-          useCleanupStore.getState().cleanup(Array.from(selectedPaths), permanent);
+          useCleanupStore.getState().startCleanup(Array.from(selectedPaths), permanent);
         }}
+        onCancel={() => setShowConfirm(false)}
       />
     </motion.div>
   );

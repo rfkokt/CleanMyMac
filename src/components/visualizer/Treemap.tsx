@@ -1,125 +1,184 @@
 import { useMemo, useCallback } from 'react';
 import { ResponsiveTreeMap } from '@nivo/treemap';
 import type { FileNode } from '../../types';
-
+import { formatBytes } from '../../lib/format';
 
 interface TreemapProps {
   data: FileNode;
   onDrillDown: (node: FileNode) => void;
-  onContextMenu?: (node: FileNode, event: React.MouseEvent) => void;
 }
 
 interface NivoNode {
   name: string;
   path: string;
   fileType: string;
-  safetyLevel: string;
   size?: number;
   children?: NivoNode[];
 }
 
-// Vibrant color palette for treemap blocks
 const CATEGORY_COLORS: Record<string, string> = {
-  Cache: '#0EA5E9',
-  Logs: '#8B5CF6',
-  Trash: '#E11D48',
-  Downloads: '#F59E0B',
-  Applications: '#10B981',
-  Documents: '#3B82F6',
+  System: '#6366F1',
+  Application: '#10B981',
+  Document: '#3B82F6',
   Media: '#EC4899',
-  Archives: '#F97316',
+  Code: '#8B5CF6',
   DevCache: '#06B6D4',
-  NodeModules: '#22D3EE',
-  XcodeDerivedData: '#A78BFA',
-  CocoaPods: '#FB923C',
+  Cache: '#F59E0B',
+  Log: '#F97316',
+  Archive: '#EF4444',
+  Trash: '#E11D48',
   Other: '#64748B',
 };
 
-function getBlockColor(fileType: string): string {
-  return CATEGORY_COLORS[fileType] || CATEGORY_COLORS['Other'];
+const VIBRANT_PALETTE = [
+  '#6366F1', '#8B5CF6', '#EC4899', '#EF4444', '#F97316',
+  '#F59E0B', '#10B981', '#06B6D4', '#3B82F6', '#14B8A6',
+  '#A855F7', '#F43F5E', '#FB923C', '#22D3EE', '#34D399',
+];
+
+function hashString(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function getNodeColor(node: NivoNode, depth: number): string {
+  if (node.fileType && CATEGORY_COLORS[node.fileType] && node.fileType !== 'Other') {
+    return CATEGORY_COLORS[node.fileType];
+  }
+  
+  if (!node.children || node.children.length === 0) {
+    const hash = hashString(node.name);
+    return VIBRANT_PALETTE[hash % VIBRANT_PALETTE.length];
+  }
+  
+  const childColors: Record<string, number> = {};
+  let maxSize = 0;
+  let dominantColor = '';
+  
+  for (const child of node.children) {
+    const color = getNodeColor(child, depth + 1);
+    const size = child.size || 0;
+    childColors[color] = (childColors[color] || 0) + size;
+    if (childColors[color] > maxSize) {
+      maxSize = childColors[color];
+      dominantColor = color;
+    }
+  }
+  
+  return dominantColor || VIBRANT_PALETTE[hashString(node.name) % VIBRANT_PALETTE.length];
+}
+
+function darkenColor(hex: string, factor: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgb(${Math.round(r * factor)}, ${Math.round(g * factor)}, ${Math.round(b * factor)})`;
 }
 
 export function Treemap({ data, onDrillDown }: TreemapProps) {
-  // Transform FileNode data to nivo-compatible format
-  const nivoData = useMemo(() => transformToNivo(data), [data]);
+  const nivoData = useMemo(() => transformToNivo(data, 2), [data]);
 
   const getColor = useCallback((node: any) => {
-    return getBlockColor(node.data?.fileType || 'Other');
+    const baseColor = getNodeColor(node.data as NivoNode, node.depth);
+    if (node.isLeaf) {
+      return baseColor;
+    }
+    return darkenColor(baseColor, 0.6);
   }, []);
 
   return (
-    <div className="w-full h-full min-h-[400px] rounded-2xl overflow-hidden">
-      <ResponsiveTreeMap
-        data={nivoData}
-        identity="name"
-        value="size"
-        valueFormat={(v) => formatSize(v)}
-        margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
-        labelSkipSize={50}
-        label={(node) => {
-          const name = node.id as string;
-          return name.length > 16 ? name.slice(0, 14) + '…' : name;
-        }}
-        labelTextColor="#ffffff"
-        parentLabelPosition="left"
-        parentLabelTextColor="#ffffffcc"
-        parentLabelSize={18}
-        colors={getColor}
-        borderColor="#0A0D1580"
-        borderWidth={2}
-        nodeOpacity={0.85}
-        animate={true}
-        motionConfig="gentle"
-        onClick={(node) => {
-          if ((node.data as any).children) {
-            onDrillDown(fileNodeFromNivo(node.data as NivoNode));
-          }
-        }}
-        tooltip={({ node }) => (
-          <div className="px-4 py-3 rounded-2xl glass border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.5)] max-w-xs">
-            <div className="flex items-center gap-2 mb-1">
-              <div
-                className="w-3 h-3 rounded-full shrink-0"
-                style={{ backgroundColor: node.color }}
-              />
-              <p className="text-sm font-semibold text-white truncate">{node.id}</p>
+    <div className="w-full h-full min-h-[400px] rounded-2xl overflow-hidden relative">
+      <div className="absolute inset-0 z-10">
+        <ResponsiveTreeMap
+          data={nivoData}
+          identity="name"
+          value="size"
+          valueFormat={(v) => formatBytes(v)}
+          margin={{ top: 8, right: 8, bottom: 8, left: 8 }}
+          labelSkipSize={30}
+          label={(node) => {
+            const name = node.id as string;
+            if (node.height === 0) {
+              return name.length > 16 ? name.slice(0, 14) + '…' : name;
+            }
+            return name.length > 22 ? name.slice(0, 20) + '…' : name;
+          }}
+          labelTextColor={{ from: 'color', modifiers: [['brighter', 3]] }}
+          parentLabelPosition="top"
+          parentLabelTextColor="#ffffff"
+          parentLabelSize={13}
+          parentLabelPadding={8}
+          colors={getColor}
+          borderColor={{ from: 'color', modifiers: [['darker', 0.6]] }}
+          borderWidth={2}
+          nodeOpacity={0.95}
+          animate={true}
+          motionConfig="gentle"
+          onClick={(node) => {
+            if ((node.data as any).children) {
+              onDrillDown(fileNodeFromNivo(node.data as NivoNode));
+            }
+          }}
+          tooltip={({ node }) => (
+            <div className="px-4 py-3 rounded-xl border border-white/10 shadow-2xl backdrop-blur-xl bg-slate-900/90 max-w-xs">
+              <div className="flex items-center gap-2 mb-1">
+                <div
+                  className="w-3 h-3 rounded-full shrink-0"
+                  style={{ backgroundColor: node.color }}
+                />
+                <p className="text-sm font-semibold text-white truncate">{node.id}</p>
+              </div>
+              <p className="text-xs text-white/60 font-medium">
+                {formatBytes(node.value)}
+                {node.isLeaf && (node.data as any)?.fileType ? ` · ${(node.data as any).fileType}` : ' · Directory'}
+              </p>
+              {(node.data as any)?.children && (
+                <p className="text-[10px] text-teal-400 mt-2 font-medium">Click to explore →</p>
+              )}
             </div>
-            <p className="text-xs text-white/60">
-              {formatSize(node.value)} · {(node.data as any)?.fileType || 'Unknown'}
-            </p>
-            {(node.data as any)?.children && (
-              <p className="text-[10px] text-white/40 mt-1">Click to explore →</p>
-            )}
-          </div>
-        )}
-        theme={{
-          labels: {
-            text: {
-              fontSize: 11,
-              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
-              fontWeight: 600,
-              textShadow: '0 1px 3px rgba(0,0,0,0.6)',
+          )}
+          theme={{
+            labels: {
+              text: {
+                fontSize: 11,
+                fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+                fontWeight: 600,
+                textShadow: '0 1px 3px rgba(0,0,0,0.9)',
+              },
             },
-          },
-        }}
-      />
+          }}
+        />
+      </div>
+
+      {/* Legend */}
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-x-4 gap-y-1 text-[10px] text-white/50 bg-black/40 backdrop-blur-sm px-4 py-2 rounded-full border border-white/5">
+        {Object.entries(CATEGORY_COLORS).map(([name, color]) => (
+          <div key={name} className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
+            <span>{name}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
 function transformToNivo(node: FileNode, maxDepth: number = 2): NivoNode {
   if (maxDepth > 0 && node.children && node.children.length > 0) {
-    // Filter very small children to avoid visual clutter
     const significantChildren = node.children
       .filter((c) => c.size > 0)
       .sort((a, b) => b.size - a.size)
-      .slice(0, 40); // Limit for performance
+      .slice(0, 50);
 
     return {
       name: node.name,
       path: node.path,
-      fileType: node.file_type,
-      safetyLevel: node.safety_level,
+      fileType: node.file_type || 'Other',
       children: significantChildren.map(c => transformToNivo(c, maxDepth - 1)),
     };
   }
@@ -127,8 +186,7 @@ function transformToNivo(node: FileNode, maxDepth: number = 2): NivoNode {
   return {
     name: node.name,
     path: node.path,
-    fileType: node.file_type,
-    safetyLevel: node.safety_level,
+    fileType: node.file_type || 'Other',
     size: node.size,
   };
 }
@@ -140,16 +198,7 @@ function fileNodeFromNivo(nivo: NivoNode): FileNode {
     size: nivo.size || 0,
     is_dir: !!nivo.children,
     file_type: nivo.fileType as any,
-    safety_level: nivo.safetyLevel as any,
-    children: nivo.children?.map(fileNodeFromNivo),
+    safety_level: 'Safe',
+    children: nivo.children ? nivo.children.map(fileNodeFromNivo) : undefined,
   };
-}
-
-function formatSize(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-  const k = 1024;
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  const decimals = i >= 3 ? 2 : i >= 1 ? 1 : 0;
-  return `${(bytes / Math.pow(k, i)).toFixed(decimals)} ${units[i]}`;
 }
