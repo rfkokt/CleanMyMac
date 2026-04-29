@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
   HardDrives,
   MagnifyingGlass,
@@ -18,38 +18,39 @@ const navItems = [
 ];
 
 export function Sidebar() {
+  const location = useLocation();
   return (
-    <aside className="w-60 h-full flex flex-col border-r border-bg-tertiary bg-bg-secondary">
+    <aside className="w-64 h-full flex flex-col bg-white/5 backdrop-blur-md border-r border-white/10 z-50">
       {/* Drag region for macOS title bar */}
       <div className="drag-region h-12 flex items-end px-5 pb-2">
-        <span className="no-drag text-sm font-semibold text-text-secondary tracking-wide uppercase">
+        <span className="no-drag text-sm font-semibold text-white/80 tracking-wide">
           CleanMyMac
         </span>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      <nav className="flex-1 px-4 py-6 space-y-2">
         {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
-              `no-drag flex items-center gap-3 px-3 py-2.5 rounded-none text-sm font-medium transition-all duration-200 ${
+              `no-drag flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all duration-300 ${
                 isActive
-                  ? 'bg-accent-primary/15 text-accent-primary'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-bg-secondary'
+                  ? 'bg-white/20 text-white shadow-lg border border-white/20'
+                  : 'text-white/60 hover:text-white hover:bg-white/10'
               }`
             }
           >
-            <Icon size={20} weight="duotone" />
+            <Icon size={22} weight={location.pathname === to ? "fill" : "duotone"} />
             {label}
           </NavLink>
         ))}
       </nav>
 
       {/* Footer */}
-      <div className="px-5 py-4 border-t border-bg-tertiary">
-        <p className="text-xs text-text-muted">v0.1.0</p>
+      <div className="px-5 py-4 border-t border-white/10">
+        <p className="text-xs text-white/40">v0.1.0</p>
       </div>
     </aside>
   );

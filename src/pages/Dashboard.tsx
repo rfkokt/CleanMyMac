@@ -8,7 +8,6 @@ import {
   Wrench,
   FileMagnifyingGlass,
   ChartDonut,
-  Spinner,
   ArrowRight,
 } from '@phosphor-icons/react';
 import { useDiskInfo } from '../hooks/use-disk-info';
@@ -71,7 +70,7 @@ export default function Dashboard() {
         <button
           onClick={refresh}
           disabled={isLoading}
-          className="flex items-center gap-2 px-4 py-2 rounded-none bg-bg-secondary hover:bg-bg-secondary text-text-secondary hover:text-text-primary transition-all duration-200 text-sm disabled:opacity-50"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-all duration-300 shadow-md backdrop-blur-md border border-white/10 text-sm disabled:opacity-50"
         >
           <ArrowClockwise size={16} className={isLoading ? 'animate-spin' : ''} />
           Refresh
@@ -90,10 +89,10 @@ export default function Dashboard() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <TiltCard className="glass rounded-none p-6 text-left w-full block">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-2.5 rounded-none bg-accent-primary/15">
-              <HardDrives size={24} weight="duotone" className="text-accent-primary" />
+          <TiltCard className="glass p-8 text-left w-full block">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="p-3 rounded-2xl bg-[#FF2E93]/20 border border-[#FF2E93]/30 shadow-[0_0_20px_rgba(255,46,147,0.3)]">
+              <HardDrives size={32} weight="duotone" className="text-[#FF2E93]" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-text-primary">Storage</h2>
@@ -132,64 +131,50 @@ export default function Dashboard() {
 
       {/* Disk Info loading skeleton */}
       {!diskInfo && isLoading && (
-        <div className="glass rounded-none p-6 animate-pulse">
-          <div className="h-6 w-32 bg-bg-secondary rounded mb-4" />
-          <div className="h-3 w-full bg-bg-secondary rounded-full" />
+        <div className="glass p-6 animate-pulse">
+          <div className="h-6 w-32 bg-white/5 rounded mb-4" />
+          <div className="h-3 w-full bg-white/5 rounded-full" />
         </div>
       )}
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-3 gap-4">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-        >
-          <TiltCard
-            onClick={handleQuickScan}
-            disabled={isScanning}
-            className="glass rounded-none p-5 text-left hover:border-accent-primary/30 transition-all duration-200 disabled:opacity-50 w-full"
-          >
-            <Lightning size={24} weight="duotone" className="text-accent-primary mb-3" />
-            <h3 className="text-sm font-semibold text-text-primary">Quick Scan</h3>
-            <p className="text-xs text-text-secondary mt-1">
-              {isScanning
-                ? `Scanning... ${progress?.scanned.toLocaleString() || 0} files`
-                : 'Scan home directory'}
-            </p>
-          </TiltCard>
-        </motion.div>
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <button onClick={() => { navigate('/scan'); handleQuickScan(); }} className="w-full text-left glass p-6 flex flex-col gap-3 group block transition-transform hover:scale-[1.02]">
+              <div className="w-12 h-12 rounded-2xl bg-[#00F0FF]/20 border border-[#00F0FF]/30 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.2)] group-hover:shadow-[0_0_30px_rgba(0,240,255,0.4)] transition-all">
+                <Lightning size={24} weight="duotone" className="text-[#00F0FF]" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-white">Quick Scan</h3>
+                <p className="text-sm text-white/60">Scan home directory</p>
+              </div>
+            </button>
+          </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <TiltCard
-            onClick={() => navigate('/dev-tools')}
-            className="glass rounded-none p-5 text-left hover:border-cat-devcache/30 transition-all duration-200 w-full"
-          >
-            <Wrench size={24} weight="duotone" className="text-cat-devcache mb-3" />
-            <h3 className="text-sm font-semibold text-text-primary">Dev Cleanup</h3>
-            <p className="text-xs text-text-secondary mt-1">node_modules, Xcode, Docker</p>
-          </TiltCard>
-        </motion.div>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <button onClick={() => navigate('/dev-tools')} className="w-full text-left glass p-6 flex flex-col gap-3 group block transition-transform hover:scale-[1.02]">
+              <div className="w-12 h-12 rounded-2xl bg-[#FF9F0A]/20 border border-[#FF9F0A]/30 flex items-center justify-center shadow-[0_0_20px_rgba(255,159,10,0.2)] group-hover:shadow-[0_0_30px_rgba(255,159,10,0.4)] transition-all">
+                <Wrench size={24} weight="duotone" className="text-[#FF9F0A]" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-white">Dev Cleanup</h3>
+                <p className="text-sm text-white/60">node_modules, Xcode, Docker</p>
+              </div>
+            </button>
+          </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-        >
-          <TiltCard
-            onClick={() => navigate('/large-files')}
-            className="glass rounded-none p-5 text-left hover:border-cat-media/30 transition-all duration-200 w-full"
-          >
-            <FileMagnifyingGlass size={24} weight="duotone" className="text-cat-media mb-3" />
-            <h3 className="text-sm font-semibold text-text-primary">Large Files</h3>
-            <p className="text-xs text-text-secondary mt-1">Find files &gt; 100MB</p>
-          </TiltCard>
-        </motion.div>
-      </div>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+            <button onClick={() => navigate('/large-files')} className="w-full text-left glass p-6 flex flex-col gap-3 group block transition-transform hover:scale-[1.02]">
+              <div className="w-12 h-12 rounded-2xl bg-[#BF5AF2]/20 border border-[#BF5AF2]/30 flex items-center justify-center shadow-[0_0_20px_rgba(191,90,242,0.2)] group-hover:shadow-[0_0_30px_rgba(191,90,242,0.4)] transition-all">
+                <FileMagnifyingGlass size={24} weight="duotone" className="text-[#BF5AF2]" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-white">Large Files</h3>
+                <p className="text-sm text-white/60">Find files &gt; 100MB</p>
+              </div>
+            </button>
+          </motion.div>
+        </div>
 
       {/* Scanning progress */}
       <AnimatePresence>

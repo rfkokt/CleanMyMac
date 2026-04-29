@@ -19,6 +19,7 @@ import { ConfirmDialog } from '../components/cleanup/ConfirmDialog';
 import { CleanupSummary } from '../components/cleanup/CleanupSummary';
 import { GSAPScanner3D } from '../components/ui/GSAPScanner3D';
 import { ScanningPlaceholder } from '../components/scanner/ScanningPlaceholder';
+import { GlassIcon } from '../components/ui/GlassIcon';
 import { openInFinder } from '../services/tauri';
 import { formatBytes } from '../lib/format';
 import type { FileNode, FileCategory, SafetyLevel } from '../types';
@@ -90,12 +91,44 @@ export default function Scanner() {
 
   const selectedSize = selectedItems.reduce((a, i) => a + i.size, 0);
 
+  if (!scanResult && !isScanning) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="flex flex-col items-center justify-center h-full relative w-full"
+      >
+        <GlassIcon
+          icon={<MagnifyingGlass size={64} weight="duotone" />}
+          color="teal"
+          pulse={true}
+        />
+        <h2 className="text-4xl font-bold text-white mt-8 tracking-tight">Welcome back!</h2>
+        <p className="text-lg text-white/70 mt-3 max-w-md text-center">
+          Start with a quick and extensive scan of your Mac.
+        </p>
+        <div className="mt-16 flex flex-col items-center">
+          <button
+            onClick={handleStartScan}
+            className="btn-scan-glow flex items-center justify-center w-28 h-28 text-xl font-bold mb-4"
+          >
+            Scan
+          </button>
+          <p className="text-[11px] text-white/30 text-center font-medium tracking-wide">
+            Powered by Antigravity
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.15 }}
-      className="space-y-6"
+      className="space-y-6 h-full flex flex-col"
     >
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -264,30 +297,7 @@ export default function Scanner() {
         </>
       )}
 
-      {/* Empty state */}
-      {!scanResult && !isScanning && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="glass rounded-none p-16 flex flex-col items-center justify-center text-center"
-        >
-          <div className="p-4 rounded-none bg-accent-primary/10 mb-4">
-            <MagnifyingGlass size={40} weight="duotone" className="text-accent-primary" />
-          </div>
-          <h2 className="text-lg font-semibold text-text-primary">Ready to Scan</h2>
-          <p className="text-sm text-text-secondary mt-2 max-w-md">
-            Click "Start Scan" to analyze your home directory. The scanner will categorize all files
-            and assess which ones are safe to delete.
-          </p>
-          <button
-            onClick={handleStartScan}
-            className="mt-6 flex items-center gap-2 px-6 py-3 rounded-none text-sm font-medium text-white bg-accent-primary hover:opacity-90 transition-opacity"
-          >
-            <Lightning size={18} weight="fill" />
-            Start Scanning
-          </button>
-        </motion.div>
-      )}
+
 
       {/* Cleanup confirm dialog */}
       <ConfirmDialog
