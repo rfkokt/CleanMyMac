@@ -1,0 +1,225 @@
+use crate::models::{FileNode, ScanProgress, ScanResult};
+use crate::scanner::categorizer::categorize_path;
+use crate::scanner::rules::assess_safety;
+use std::collections::HashMap;
+use std::time::Instant;
+use tauri::Emitter;
+
+#[tauri::command]
+pub async fn start_scan(
+    app: tauri::AppHandle,
+    path: String,
+    max_depth: Option<u32>,
+) -> Result<ScanResult, String> {
+    let start = Instant::now();
+    let root_path = std::path::Path::new(&path);
+
+    if !root_path.exists() {
+        return Err(format!("Path does not exist: {}", path));
+    }
+    if !root_path.is_dir() {
+        return Err(format!("Path is not a directory: {}", path));
+    }
+
+    let mut file_count: u64 = 0;
+    let mut dir_count: u64 = 0;
+    let mut categories: HashMap<String, u64> = HashMap::new();
+    let mut scanned: u64 = 0;
+
+    let depth = max_depth.unwrap_or(u32::MAX);
+
+    let root = scan_directory(root_path, depth, &app, &mut file_count, &mut dir_count, &mut categories, &mut scanned);
+
+    let duration = start.elapsed().as_millis() as u64;
+    let total_size = root.size;
+
+    Ok(ScanResult {
+        root,
+        total_size,
+        file_count,
+        dir_count,
+        scan_duration_ms: duration,
+        categories,
+    })
+}
+
+fn scan_directory(
+    path: &std::path::Path,
+    max_depth: u32,
+    app: &tauri::AppHandle,
+    file_count: &mut u64,
+    dir_count: &mut u64,
+    categories: &mut HashMap<String, u64>,
+    scanned: &mut u64,
+) -> FileNode {
+    let name = path
+        .file_name()
+        .map(|n| n.to_string_lossy().to_string())
+        .unwrap_or_else(|| path.to_string_lossy().to_string());
+
+    let category = categorize_path(path, &name);
+    let safety = assess_safety(path, &category);
+
+    let mut children = Vec::new();
+    let mut total_size: u64 = 0;
+
+    if max_depth > 0 {
+        match std::fs::read_dir(path) {
+            Ok(entries) => {
+                for entry in entries.flatten() {
+                    let entry_path = entry.path();
+                    let entry_name = entry
+                        .file_name()
+                        .to_string_lossy()
+                        .to_string();
+
+                    if let Ok(metadata) = entry.metadata() {
+                        if metadata.is_dir() {
+                            *dir_count += 1;
+                            let child = scan_directory(
+                                &entry_path,
+                                max_depth - 1,
+                                app,
+                                file_count,
+                                dir_count,
+                                categories,
+                                scanned,
+                            );
+                            total_size += child.size;
+                            children.push(child);
+                        } else {
+                            *file_count += 1;
+                            let file_size = metadata.len();
+                            total_size += file_size;
+
+                            let file_cat = categorize_path(&entry_path, &entry_name);
+                            let file_safety = assess_safety(&entry_path, &file_cat);
+
+                            let cat_key = file_cat.to_string();
+                            *categories.entry(cat_key).or_insert(0) += file_size;
+
+                            let last_modified = metadata
+                                .modified()
+                                .ok()
+                                .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+                                .map(|d| d.as_secs() as i64);
+
+                            children.push(FileNode {
+                                name: entry_name,
+                                path: entry_path.to_string_lossy().to_string(),
+                                size: file_size,
+                                is_dir: false,
+                                file_type: file_cat,
+                                children: None,
+                                last_accessed: None,
+                                last_modified,
+                                safety_level: file_safety,
+                            });
+                        }
+                    }
+
+                    *scanned += 1;
+                    // Emit progress every 200 files
+                    if *scanned % 200 == 0 {
+                        let _ = app.emit(
+                            "scan://progress",
+                            ScanProgress {
+                                scanned: *scanned,
+                                current_path: entry_path.to_string_lossy().to_string(),
+                                estimated_total: None,
+                            },
+                        );
+                    }
+                }
+            }
+            Err(e) => {
+                log::warn!("Skipping inaccessible directory: {} ({})", path.display(), e);
+            }
+        }
+    }
+
+    // Sort children by size descending
+    children.sort_by(|a, b| b.size.cmp(&a.size));
+
+    let dir_cat_key = category.to_string();
+    *categories.entry(dir_cat_key).or_insert(0) += total_size;
+
+    let last_modified = std::fs::metadata(path)
+        .ok()
+        .and_then(|m| m.modified().ok())
+        .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+        .map(|d| d.as_secs() as i64);
+
+    FileNode {
+        name,
+        path: path.to_string_lossy().to_string(),
+        size: total_size,
+        is_dir: true,
+        file_type: category,
+        children: Some(children),
+        last_accessed: None,
+        last_modified,
+        safety_level: safety,
+    }
+}
+
+#[tauri::command]
+pub async fn find_large_files(
+    path: String,
+    min_size_bytes: u64,
+) -> Result<Vec<FileNode>, String> {
+    let root_path = std::path::Path::new(&path);
+    if !root_path.exists() {
+        return Err(format!("Path does not exist: {}", path));
+    }
+
+    let mut large_files = Vec::new();
+
+    for entry in jwalk::WalkDir::new(root_path)
+        .skip_hidden(false)
+        .into_iter()
+        .filter_map(|e| e.ok())
+    {
+        if entry.file_type().is_file() {
+            if let Ok(metadata) = entry.metadata() {
+                let size = metadata.len();
+                if size >= min_size_bytes {
+                    let name = entry.file_name().to_string_lossy().to_string();
+                    let entry_path = entry.path();
+                    let category = categorize_path(&entry_path, &name);
+                    let safety = assess_safety(&entry_path, &category);
+
+                    let last_modified = metadata
+                        .modified()
+                        .ok()
+                        .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+                        .map(|d| d.as_secs() as i64);
+
+                    large_files.push(FileNode {
+                        name,
+                        path: entry_path.to_string_lossy().to_string(),
+                        size,
+                        is_dir: false,
+                        file_type: category,
+                        children: None,
+                        last_accessed: None,
+                        last_modified,
+                        safety_level: safety,
+                    });
+                }
+            }
+        }
+    }
+
+    large_files.sort_by(|a, b| b.size.cmp(&a.size));
+    Ok(large_files)
+}
+
+#[tauri::command]
+pub async fn open_in_finder(path: String) -> Result<(), String> {
+    std::process::Command::new("open")
+        .args(["-R", &path])
+        .spawn()
+        .map_err(|e| format!("Failed to open Finder: {}", e))?;
+    Ok(())
+}

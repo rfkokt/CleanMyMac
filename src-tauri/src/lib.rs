@@ -1,0 +1,22 @@
+mod commands;
+mod models;
+mod scanner;
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_os::init())
+        .invoke_handler(tauri::generate_handler![
+            commands::disk_info::get_disk_info,
+            commands::disk_info::check_fda_status,
+            commands::scan::start_scan,
+            commands::scan::find_large_files,
+            commands::scan::open_in_finder,
+            commands::cleanup::cleanup_items,
+            commands::dev_tools::scan_dev_junk,
+        ])
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}

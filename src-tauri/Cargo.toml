@@ -1,0 +1,39 @@
+[package]
+name = "cleanmymac"
+version = "0.1.0"
+description = "A macOS storage analyzer and cleaner for developers"
+authors = ["you"]
+edition = "2021"
+
+[lib]
+name = "cleanmymac_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-shell = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-os = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+
+# File system scanning
+jwalk = "0.8"
+ignore = "0.4"
+
+# Hashing (for duplicate detection)
+xxhash-rust = { version = "0.8", features = ["xxh3"] }
+
+# File operations
+trash = "5"
+dirs = "5"
+
+# Utilities
+chrono = { version = "0.4", features = ["serde"] }
+bytesize = "1"
+log = "0.4"
+env_logger = "0.11"

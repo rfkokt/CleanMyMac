@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+@theme {
+  /* Background */
+  --color-bg-primary: #0a0a0f;
+  --color-bg-secondary: #12121a;
+  --color-bg-tertiary: #1a1a28;
+
+  /* Accent */
+  --color-accent-primary: #6366f1;
+  --color-accent-secondary: #8b5cf6;
+
+  /* Text */
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #475569;
+
+  /* Safety */
+  --color-safe: #22c55e;
+  --color-review: #f59e0b;
+  --color-caution: #ef4444;
+
+  /* Categories */
+  --color-cat-system: #ef4444;
+  --color-cat-application: #3b82f6;
+  --color-cat-document: #22c55e;
+  --color-cat-media: #f59e0b;
+  --color-cat-code: #8b5cf6;
+  --color-cat-devcache: #ec4899;
+  --color-cat-cache: #6366f1;
+  --color-cat-log: #64748b;
+  --color-cat-archive: #14b8a6;
+  --color-cat-other: #475569;
+}
+
+/* Global styles */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Drag region for macOS title bar */
+.drag-region {
+  -webkit-app-region: drag;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
