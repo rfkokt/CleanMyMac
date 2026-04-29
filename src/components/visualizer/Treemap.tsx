@@ -45,8 +45,8 @@ export function Treemap({ data, onDrillDown }: TreemapProps) {
         colors={getColor}
         borderColor={{ from: 'color', modifiers: [['darker', 0.3]] }}
         borderWidth={1}
-        nodeOpacity={0.85}
-        animate={true}
+        nodeOpacity={1}
+        animate={false}
         motionConfig="gentle"
         onClick={(node) => {
           if ((node.data as any).children) {
@@ -75,19 +75,19 @@ export function Treemap({ data, onDrillDown }: TreemapProps) {
   );
 }
 
-function transformToNivo(node: FileNode): NivoNode {
-  if (node.children && node.children.length > 0) {
+function transformToNivo(node: FileNode, maxDepth: number = 2): NivoNode {
+  if (maxDepth > 0 && node.children && node.children.length > 0) {
     // Filter very small children to avoid visual clutter
     const significantChildren = node.children
       .filter((c) => c.size > 0)
-      .slice(0, 50); // Limit to 50 children for performance
+      .slice(0, 30); // Limit to 30 children for performance
 
     return {
       name: node.name,
       path: node.path,
       fileType: node.file_type,
       safetyLevel: node.safety_level,
-      children: significantChildren.map(transformToNivo),
+      children: significantChildren.map(c => transformToNivo(c, maxDepth - 1)),
     };
   }
 
