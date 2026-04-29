@@ -83,6 +83,16 @@ function darkenColor(hex: string, factor: number): string {
 export function Treemap({ data, onDrillDown }: TreemapProps) {
   const nivoData = useMemo(() => transformToNivo(data, 1), [data]);
 
+  const nodeMap = useMemo(() => {
+    const map = new Map<string, FileNode>();
+    const walk = (node: FileNode) => {
+      map.set(node.path, node);
+      node.children?.forEach(walk);
+    };
+    walk(data);
+    return map;
+  }, [data]);
+
   const getColor = useCallback((node: any) => {
     const baseColor = getNodeColor(node.data as NivoNode, node.depth);
     if (node.isLeaf) {
@@ -90,6 +100,14 @@ export function Treemap({ data, onDrillDown }: TreemapProps) {
     }
     return darkenColor(baseColor, 0.6);
   }, []);
+
+  const handleClick = useCallback((node: any) => {
+    const path = (node.data as NivoNode)?.path;
+    const originalNode = path ? nodeMap.get(path) : null;
+    if (originalNode?.is_dir && originalNode.children?.length) {
+      onDrillDown(originalNode);
+    }
+  }, [nodeMap, onDrillDown]);
 
   return (
     <div className="w-full h-full min-h-[400px] rounded-2xl overflow-hidden relative">
@@ -119,11 +137,7 @@ export function Treemap({ data, onDrillDown }: TreemapProps) {
           nodeOpacity={0.95}
           animate={true}
           motionConfig="gentle"
-          onClick={(node) => {
-            if ((node.data as any).children) {
-              onDrillDown(fileNodeFromNivo(node.data as NivoNode));
-            }
-          }}
+          onClick={handleClick}
           tooltip={({ node }) => (
             <div className="px-4 py-3 rounded-xl border border-white/10 shadow-2xl backdrop-blur-xl bg-slate-900/90 max-w-xs">
               <div className="flex items-center gap-2 mb-1">
@@ -202,17 +216,5 @@ function transformToNivo(node: FileNode, maxDepth: number = 1): NivoNode {
     path: node.path,
     fileType: node.file_type || 'Other',
     size: node.size,
-  };
-}
-
-function fileNodeFromNivo(nivo: NivoNode): FileNode {
-  return {
-    name: nivo.name,
-    path: nivo.path,
-    size: nivo.size || 0,
-    is_dir: !!nivo.children,
-    file_type: nivo.fileType as any,
-    safety_level: 'Safe',
-    children: nivo.children ? nivo.children.map(fileNodeFromNivo) : undefined,
   };
 }
