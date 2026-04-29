@@ -39,7 +39,7 @@ export function CategoryChart({ categories, totalSize, onCategoryClick }: Catego
   const center = 100;
 
   return (
-    <div className="glass rounded-2xl p-6">
+    <div className="glass rounded-none p-6">
       <h3 className="text-lg font-semibold text-text-primary mb-5">Storage Breakdown</h3>
 
       <div className="flex items-center gap-8">
@@ -107,7 +107,7 @@ export function CategoryChart({ categories, totalSize, onCategoryClick }: Catego
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 + i * 0.04 }}
               onClick={() => onCategoryClick?.(category)}
-              className="w-full flex items-center gap-3 group hover:bg-white/[0.03] -mx-2 px-2 py-1 rounded-lg transition-colors"
+              className="w-full flex items-center gap-3 group hover:bg-bg-secondary -mx-2 px-2 py-1 rounded-none transition-colors"
             >
               <span
                 className="w-3 h-3 rounded-full shrink-0"

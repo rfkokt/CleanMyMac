@@ -108,14 +108,14 @@ function DevJunkGroup({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass rounded-2xl overflow-hidden"
+      className="glass rounded-none overflow-hidden"
     >
       {/* Group header */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center gap-3 p-4 hover:bg-white/[0.02] transition-colors"
+        className="w-full flex items-center gap-3 p-4 hover:bg-bg-secondary transition-colors"
       >
-        <div className="p-2 rounded-xl" style={{ backgroundColor: `${meta.color}15` }}>
+        <div className="p-2 rounded-none" style={{ backgroundColor: `${meta.color}15` }}>
           <Icon size={20} weight="duotone" style={{ color: meta.color }} />
         </div>
 
@@ -145,10 +145,10 @@ function DevJunkGroup({
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="overflow-hidden border-t border-white/[0.04]"
+            className="overflow-hidden border-t border-bg-tertiary"
           >
             {/* Select all / batch action */}
-            <div className="flex items-center justify-between px-4 py-2 bg-white/[0.02]">
+            <div className="flex items-center justify-between px-4 py-2 bg-bg-secondary">
               <button
                 onClick={handleSelectAll}
                 className="flex items-center gap-2 text-xs text-text-secondary hover:text-text-primary transition-colors"
@@ -166,7 +166,7 @@ function DevJunkGroup({
             {items.map((item) => (
               <div
                 key={item.path}
-                className="group flex items-center gap-3 px-4 py-2.5 border-t border-white/[0.03] hover:bg-white/[0.02] transition-colors"
+                className="group flex items-center gap-3 px-4 py-2.5 border-t border-bg-tertiary hover:bg-bg-secondary transition-colors"
               >
                 <button
                   onClick={() => onToggleSelect(item.path)}

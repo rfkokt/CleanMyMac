@@ -54,7 +54,7 @@ export function Treemap({ data, onDrillDown }: TreemapProps) {
           }
         }}
         tooltip={({ node }) => (
-          <div className="px-3 py-2 rounded-lg bg-bg-secondary border border-white/[0.1] shadow-xl">
+          <div className="px-3 py-2 rounded-none bg-bg-secondary border border-bg-tertiary shadow-xl">
             <p className="text-sm font-medium text-text-primary">{node.id}</p>
             <p className="text-xs text-text-secondary mt-1">
               {formatSize(node.value)} • {(node.data as any)?.fileType || 'Unknown'}

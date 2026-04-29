@@ -52,11 +52,11 @@ export function ConfirmDialog({
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-8"
           >
-            <div className="w-full max-w-lg rounded-3xl bg-bg-secondary border border-white/[0.08] shadow-2xl overflow-hidden">
+            <div className="w-full max-w-lg rounded-none bg-bg-secondary border border-bg-tertiary shadow-2xl overflow-hidden">
               {/* Header */}
               <div className="p-6 pb-4 flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-caution/15">
+                  <div className="p-2.5 rounded-none bg-caution/15">
                     <Trash size={24} weight="duotone" className="text-caution" />
                   </div>
                   <div>
@@ -74,7 +74,7 @@ export function ConfirmDialog({
                 {!isCleaningUp && (
                   <button
                     onClick={onCancel}
-                    className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/[0.06] transition-colors"
+                    className="p-1.5 rounded-none text-text-muted hover:text-text-primary hover:bg-bg-secondary transition-colors"
                   >
                     <X size={16} />
                   </button>
@@ -84,9 +84,9 @@ export function ConfirmDialog({
               {/* Progress bar (when cleaning) */}
               {isCleaningUp && progress && (
                 <div className="px-6 pb-4">
-                  <div className="w-full h-2 bg-white/[0.06] rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-bg-secondary rounded-full overflow-hidden">
                     <motion.div
-                      className="h-full rounded-full bg-gradient-to-r from-accent-primary to-accent-secondary"
+                      className="h-full rounded-full bg-accent-primary"
                       initial={{ width: 0 }}
                       animate={{ width: `${(progress.completed / progress.total) * 100}%` }}
                       transition={{ ease: 'easeOut' }}
@@ -100,7 +100,7 @@ export function ConfirmDialog({
                 <div className="px-6 pb-4">
                   <div className="grid grid-cols-3 gap-3">
                     {safeCount > 0 && (
-                      <div className="flex items-center gap-2 p-3 rounded-xl bg-safe/10 border border-safe/20">
+                      <div className="flex items-center gap-2 p-3 rounded-none bg-safe/10 border border-safe/20">
                         <ShieldCheck size={16} className="text-safe" />
                         <div>
                           <p className="text-xs text-safe font-medium">{safeCount} Safe</p>
@@ -108,7 +108,7 @@ export function ConfirmDialog({
                       </div>
                     )}
                     {reviewCount > 0 && (
-                      <div className="flex items-center gap-2 p-3 rounded-xl bg-review/10 border border-review/20">
+                      <div className="flex items-center gap-2 p-3 rounded-none bg-review/10 border border-review/20">
                         <Warning size={16} className="text-review" />
                         <div>
                           <p className="text-xs text-review font-medium">{reviewCount} Review</p>
@@ -116,7 +116,7 @@ export function ConfirmDialog({
                       </div>
                     )}
                     {cautionCount > 0 && (
-                      <div className="flex items-center gap-2 p-3 rounded-xl bg-caution/10 border border-caution/20">
+                      <div className="flex items-center gap-2 p-3 rounded-none bg-caution/10 border border-caution/20">
                         <Warning size={16} weight="fill" className="text-caution" />
                         <div>
                           <p className="text-xs text-caution font-medium">{cautionCount} Caution</p>
@@ -126,13 +126,13 @@ export function ConfirmDialog({
                   </div>
 
                   {/* Items list preview */}
-                  <div className="mt-4 max-h-40 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                  <div className="mt-4 max-h-40 overflow-y-auto rounded-none bg-bg-secondary border border-bg-tertiary">
                     {items.slice(0, 20).map((item) => {
                       const diskLabel = getDiskLabel(item.path);
                       return (
                         <div
                           key={item.path}
-                          className="flex items-center justify-between px-3 py-2 border-b border-white/[0.03] last:border-0"
+                          className="flex items-center justify-between px-3 py-2 border-b border-bg-tertiary last:border-0"
                         >
                           <div className="flex-1 min-w-0 mr-2">
                             <span className="text-xs text-text-secondary truncate block">
@@ -166,7 +166,7 @@ export function ConfirmDialog({
                         value={confirmText}
                         onChange={(e) => setConfirmText(e.target.value)}
                         placeholder="Type DELETE"
-                        className="w-full px-3 py-2 rounded-lg bg-white/[0.04] border border-white/[0.08] text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-caution/50 transition-colors"
+                        className="w-full px-3 py-2 rounded-none bg-bg-secondary border border-bg-tertiary text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-caution/50 transition-colors"
                       />
                     </div>
                   )}
@@ -182,14 +182,14 @@ export function ConfirmDialog({
                 <div className="p-6 pt-2 flex gap-3">
                   <button
                     onClick={onCancel}
-                    className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-text-secondary hover:text-text-primary bg-white/[0.04] hover:bg-white/[0.08] transition-all"
+                    className="flex-1 px-4 py-2.5 rounded-none text-sm font-medium text-text-secondary hover:text-text-primary bg-bg-secondary hover:bg-bg-secondary transition-all"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={onConfirm}
                     disabled={!isConfirmEnabled}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-caution to-caution/80 hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-none text-sm font-medium text-white bg-gradient-to-r from-caution to-caution/80 hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     <Trash size={16} />
                     Clean {formatBytes(totalSize)}

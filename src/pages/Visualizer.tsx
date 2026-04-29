@@ -72,7 +72,7 @@ export default function Visualizer() {
           <button
             onClick={handleStartScan}
             disabled={isScanning}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-accent-primary to-accent-secondary hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-none text-sm font-medium text-white bg-accent-primary hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {isScanning ? (
               <>
@@ -91,7 +91,7 @@ export default function Visualizer() {
 
       {/* Scanning progress */}
       {isScanning && progress && (
-        <div className="glass rounded-2xl p-4 shrink-0">
+        <div className="glass rounded-none p-4 shrink-0">
           <div className="flex items-center gap-3">
             <Spinner size={16} className="text-accent-primary animate-spin" />
             <span className="text-sm text-text-secondary">
@@ -111,7 +111,7 @@ export default function Visualizer() {
           </div>
 
           {/* Treemap container */}
-          <div className="flex-1 min-h-0 glass rounded-2xl overflow-hidden">
+          <div className="flex-1 min-h-0 glass rounded-none overflow-hidden">
             <Treemap
               data={currentNode}
               onDrillDown={handleDrillDown}
@@ -136,9 +136,9 @@ export default function Visualizer() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="glass rounded-2xl p-16 flex flex-col items-center justify-center text-center"
+            className="glass rounded-none p-16 flex flex-col items-center justify-center text-center"
           >
-            <div className="p-4 rounded-2xl bg-accent-secondary/10 mb-4">
+            <div className="p-4 rounded-none bg-accent-secondary/10 mb-4">
               <ChartDonut size={40} weight="duotone" className="text-accent-secondary" />
             </div>
             <h2 className="text-lg font-semibold text-text-primary">No Scan Data</h2>
@@ -148,7 +148,7 @@ export default function Visualizer() {
             </p>
             <button
               onClick={handleStartScan}
-              className="mt-6 flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-accent-primary to-accent-secondary hover:opacity-90 transition-opacity"
+              className="mt-6 flex items-center gap-2 px-6 py-3 rounded-none text-sm font-medium text-white bg-accent-primary hover:opacity-90 transition-opacity"
             >
               <MagnifyingGlass size={18} />
               Start Scanning

@@ -30,18 +30,18 @@ export function FDAModal({ isOpen, onDismiss }: FDAModalProps) {
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-8"
           >
-            <div className="w-full max-w-md rounded-3xl bg-bg-secondary border border-white/[0.08] shadow-2xl overflow-hidden">
+            <div className="w-full max-w-md rounded-none bg-bg-secondary border border-bg-tertiary shadow-2xl overflow-hidden">
               {/* Header */}
               <div className="relative p-6 pb-4">
                 <button
                   onClick={onDismiss}
-                  className="absolute top-4 right-4 p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/[0.06] transition-colors"
+                  className="absolute top-4 right-4 p-1.5 rounded-none text-text-muted hover:text-text-primary hover:bg-bg-secondary transition-colors"
                 >
                   <X size={16} />
                 </button>
 
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="p-3 rounded-2xl bg-review/15">
+                  <div className="p-3 rounded-none bg-review/15">
                     <ShieldWarning size={32} weight="duotone" className="text-review" />
                   </div>
                   <div>
@@ -65,7 +65,7 @@ export function FDAModal({ isOpen, onDismiss }: FDAModalProps) {
                     Without it, many directories (like Library and system caches) will be inaccessible, and your scan results will be incomplete.
                   </p>
 
-                  <div className="mt-4 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+                  <div className="mt-4 p-3 rounded-none bg-bg-secondary border border-bg-tertiary">
                     <p className="text-xs text-text-muted font-medium mb-2">HOW TO ENABLE:</p>
                     <ol className="text-xs text-text-secondary space-y-1.5 list-decimal list-inside">
                       <li>Open <strong className="text-text-primary">System Settings</strong></li>
@@ -81,7 +81,7 @@ export function FDAModal({ isOpen, onDismiss }: FDAModalProps) {
               <div className="p-6 pt-4 flex gap-3">
                 <button
                   onClick={onDismiss}
-                  className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-text-secondary hover:text-text-primary bg-white/[0.04] hover:bg-white/[0.08] transition-all"
+                  className="flex-1 px-4 py-2.5 rounded-none text-sm font-medium text-text-secondary hover:text-text-primary bg-bg-secondary hover:bg-bg-secondary transition-all"
                 >
                   Later
                 </button>
@@ -89,7 +89,7 @@ export function FDAModal({ isOpen, onDismiss }: FDAModalProps) {
                   onClick={() => {
                     openSystemPreferences().catch(console.error);
                   }}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-accent-primary to-accent-secondary hover:opacity-90 transition-opacity"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-none text-sm font-medium text-white bg-accent-primary hover:opacity-90 transition-opacity"
                 >
                   <ArrowSquareOut size={16} />
                   Open Settings
@@ -114,7 +114,7 @@ export function FDABanner({ onOpenSettings }: { onOpenSettings: () => void }) {
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-review/10 border border-review/20"
+      className="flex items-center justify-between px-4 py-2.5 rounded-none bg-review/10 border border-review/20"
     >
       <div className="flex items-center gap-2">
         <ShieldWarning size={16} weight="duotone" className="text-review shrink-0" />

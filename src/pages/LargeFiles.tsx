@@ -80,13 +80,13 @@ export default function LargeFiles() {
             <>
               <button
                 onClick={() => setSelectedPaths(new Set())}
-                className="px-3 py-2 rounded-xl text-xs font-medium text-text-secondary hover:text-text-primary bg-white/[0.04] hover:bg-white/[0.08] transition-all"
+                className="px-3 py-2 rounded-none text-xs font-medium text-text-secondary hover:text-text-primary bg-bg-secondary hover:bg-bg-secondary transition-all"
               >
                 Clear ({selectedPaths.size})
               </button>
               <button
                 onClick={() => setShowConfirm(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium text-white bg-gradient-to-r from-caution to-caution/80 hover:opacity-90 transition-opacity"
+                className="flex items-center gap-2 px-4 py-2 rounded-none text-xs font-medium text-white bg-gradient-to-r from-caution to-caution/80 hover:opacity-90 transition-opacity"
               >
                 <Trash size={14} />
                 Clean {formatBytes(selectedSize)}
@@ -98,7 +98,7 @@ export default function LargeFiles() {
           <div className="relative">
             <button
               onClick={() => setShowThresholdMenu(!showThresholdMenu)}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-text-secondary bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] transition-all"
+              className="flex items-center gap-2 px-3 py-2 rounded-none text-xs font-medium text-text-secondary bg-bg-secondary hover:bg-bg-secondary border border-bg-tertiary transition-all"
             >
               <FunnelSimple size={14} />
               Min: {formatBytes(threshold)}
@@ -107,7 +107,7 @@ export default function LargeFiles() {
             {showThresholdMenu && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShowThresholdMenu(false)} />
-                <div className="absolute right-0 top-full mt-1 z-20 w-32 py-1 rounded-xl bg-bg-tertiary border border-white/[0.08] shadow-xl">
+                <div className="absolute right-0 top-full mt-1 z-20 w-32 py-1 rounded-none bg-bg-tertiary border border-bg-tertiary shadow-xl">
                   {thresholds.map(({ label, value }) => (
                     <button
                       key={value}
@@ -119,7 +119,7 @@ export default function LargeFiles() {
                       className={`w-full px-3 py-2 text-xs text-left transition-colors ${
                         threshold === value
                           ? 'bg-accent-primary/10 text-accent-primary'
-                          : 'text-text-secondary hover:bg-white/[0.04] hover:text-text-primary'
+                          : 'text-text-secondary hover:bg-bg-secondary hover:text-text-primary'
                       }`}
                     >
                       {label}
@@ -133,7 +133,7 @@ export default function LargeFiles() {
           <button
             onClick={handleScan}
             disabled={isScanning}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-accent-primary to-accent-secondary hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-none text-sm font-medium text-white bg-accent-primary hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {isScanning ? (
               <>
@@ -152,14 +152,14 @@ export default function LargeFiles() {
 
       {/* Error */}
       {error && (
-        <div className="p-4 rounded-2xl bg-caution/10 border border-caution/20">
+        <div className="p-4 rounded-none bg-caution/10 border border-caution/20">
           <p className="text-sm text-caution">{error}</p>
         </div>
       )}
 
       {/* Loading */}
       {isScanning && (
-        <div className="glass rounded-2xl p-12 flex flex-col items-center justify-center">
+        <div className="glass rounded-none p-12 flex flex-col items-center justify-center">
           <Spinner size={32} className="text-accent-primary animate-spin mb-4" />
           <p className="text-sm text-text-secondary">Searching for large files...</p>
           <p className="text-xs text-text-muted mt-1">Looking for files larger than {formatBytes(threshold)}</p>
@@ -174,7 +174,7 @@ export default function LargeFiles() {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="glass rounded-xl p-4"
+              className="glass rounded-none p-4"
             >
               <p className="text-xs text-text-muted">Total Size</p>
               <p className="text-xl font-bold text-accent-primary mt-1">
@@ -185,7 +185,7 @@ export default function LargeFiles() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.05 }}
-              className="glass rounded-xl p-4"
+              className="glass rounded-none p-4"
             >
               <p className="text-xs text-text-muted">Files Found</p>
               <p className="text-xl font-bold text-accent-secondary mt-1">{files.length}</p>
@@ -194,7 +194,7 @@ export default function LargeFiles() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="glass rounded-xl p-4"
+              className="glass rounded-none p-4"
             >
               <p className="text-xs text-text-muted">Stale Files</p>
               <p className="text-xl font-bold text-review mt-1">
@@ -204,9 +204,9 @@ export default function LargeFiles() {
           </div>
 
           {/* File list */}
-          <div className="rounded-2xl overflow-hidden border border-white/[0.06]">
+          <div className="rounded-none overflow-hidden border border-bg-tertiary">
             {/* Header */}
-            <div className="flex items-center gap-3 px-4 py-2.5 bg-white/[0.02] border-b border-white/[0.06] text-xs text-text-muted font-medium uppercase tracking-wider">
+            <div className="flex items-center gap-3 px-4 py-2.5 bg-bg-secondary border-b border-bg-tertiary text-xs text-text-muted font-medium uppercase tracking-wider">
               <div className="w-8" />
               <span className="flex-1">File</span>
               <span className="w-24 text-right">Size</span>
@@ -227,7 +227,7 @@ export default function LargeFiles() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: Math.min(i * 0.02, 0.3) }}
-                    className={`group flex items-center gap-3 px-4 py-3 border-b border-white/[0.03] hover:bg-white/[0.03] transition-colors ${
+                    className={`group flex items-center gap-3 px-4 py-3 border-b border-bg-tertiary hover:bg-bg-secondary transition-colors ${
                       selectedPaths.has(file.path) ? 'bg-accent-primary/5' : ''
                     }`}
                   >
@@ -238,7 +238,7 @@ export default function LargeFiles() {
                       <div className={`w-4 h-4 rounded border transition-all ${
                         selectedPaths.has(file.path)
                           ? 'bg-accent-primary border-accent-primary'
-                          : 'border-white/[0.15] group-hover:border-white/[0.3]'
+                          : 'border-bg-tertiary group-hover:border-bg-tertiary'
                       }`}>
                         {selectedPaths.has(file.path) && (
                           <svg className="w-4 h-4 text-white" viewBox="0 0 16 16" fill="none">
@@ -253,7 +253,7 @@ export default function LargeFiles() {
                         <File size={14} weight="duotone" className="text-text-muted shrink-0" />
                         <span className="text-sm text-text-primary truncate">{file.name}</span>
                         {stale && (
-                          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-review/10 text-review text-[10px] font-medium shrink-0">
+                          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-none bg-review/10 text-review text-[10px] font-medium shrink-0">
                             <Clock size={10} />
                             Stale
                           </span>
@@ -270,7 +270,7 @@ export default function LargeFiles() {
 
                     <span className="w-24">
                       <span
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-none text-xs"
                         style={{ backgroundColor: `${catColor}15`, color: catColor }}
                       >
                         {file.file_type}
@@ -301,9 +301,9 @@ export default function LargeFiles() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="glass rounded-2xl p-16 flex flex-col items-center justify-center text-center"
+          className="glass rounded-none p-16 flex flex-col items-center justify-center text-center"
         >
-          <div className="p-4 rounded-2xl bg-safe/10 mb-4">
+          <div className="p-4 rounded-none bg-safe/10 mb-4">
             <File size={40} weight="duotone" className="text-safe" />
           </div>
           <h2 className="text-lg font-semibold text-text-primary">No Large Files Found</h2>

@@ -111,13 +111,13 @@ export default function Scanner() {
             <>
               <button
                 onClick={clearSelection}
-                className="px-3 py-2 rounded-xl text-xs font-medium text-text-secondary hover:text-text-primary bg-white/[0.04] hover:bg-white/[0.08] transition-all"
+                className="px-3 py-2 rounded-none text-xs font-medium text-text-secondary hover:text-text-primary bg-bg-secondary hover:bg-bg-secondary transition-all"
               >
                 Clear ({selectedPaths.size})
               </button>
               <button
                 onClick={() => setShowConfirm(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium text-white bg-gradient-to-r from-caution to-caution/80 hover:opacity-90 transition-opacity"
+                className="flex items-center gap-2 px-4 py-2 rounded-none text-xs font-medium text-white bg-gradient-to-r from-caution to-caution/80 hover:opacity-90 transition-opacity"
               >
                 <Trash size={14} />
                 Clean {formatBytes(selectedSize)}
@@ -127,7 +127,7 @@ export default function Scanner() {
           <button
             onClick={handleStartScan}
             disabled={isScanning}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-accent-primary to-accent-secondary hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-none text-sm font-medium text-white bg-accent-primary hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {isScanning ? (
               <>
@@ -151,7 +151,7 @@ export default function Scanner() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="glass rounded-2xl p-4"
+            className="glass rounded-none p-4"
           >
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-text-secondary">
@@ -160,9 +160,9 @@ export default function Scanner() {
               <Spinner size={16} className="text-accent-primary animate-spin" />
             </div>
             <p className="text-xs text-text-muted truncate">{progress.current_path}</p>
-            <div className="mt-2 w-full h-1 bg-white/[0.06] rounded-full overflow-hidden">
+            <div className="mt-2 w-full h-1 bg-bg-secondary rounded-full overflow-hidden">
               <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-accent-primary to-accent-secondary"
+                className="h-full rounded-full bg-accent-primary"
                 animate={{ width: ['0%', '100%'] }}
                 transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
               />
@@ -179,7 +179,7 @@ export default function Scanner() {
             <nav className="flex items-center gap-1 text-sm">
               <button
                 onClick={() => handleBreadcrumbNav(-1)}
-                className="p-1 rounded-md text-text-secondary hover:text-text-primary hover:bg-white/[0.04] transition-colors"
+                className="p-1 rounded-none text-text-secondary hover:text-text-primary hover:bg-bg-secondary transition-colors"
               >
                 <House size={14} weight="duotone" />
               </button>
@@ -189,10 +189,10 @@ export default function Scanner() {
                   <button
                     onClick={() => handleBreadcrumbNav(i)}
                     disabled={i === navStack.length - 1}
-                    className={`px-2 py-1 rounded-md text-xs transition-colors ${
+                    className={`px-2 py-1 rounded-none text-xs transition-colors ${
                       i === navStack.length - 1
                         ? 'text-text-primary font-medium'
-                        : 'text-text-secondary hover:text-text-primary hover:bg-white/[0.04]'
+                        : 'text-text-secondary hover:text-text-primary hover:bg-bg-secondary'
                     }`}
                   >
                     {node.name}
@@ -212,7 +212,7 @@ export default function Scanner() {
             />
             <button
               onClick={() => scanResult && selectAllSafe(currentChildren)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-safe bg-safe/10 hover:bg-safe/20 border border-safe/20 transition-all"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-none text-xs font-medium text-safe bg-safe/10 hover:bg-safe/20 border border-safe/20 transition-all"
             >
               <CheckCircle size={14} />
               Select All Safe
@@ -247,9 +247,9 @@ export default function Scanner() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="glass rounded-2xl p-16 flex flex-col items-center justify-center text-center"
+          className="glass rounded-none p-16 flex flex-col items-center justify-center text-center"
         >
-          <div className="p-4 rounded-2xl bg-accent-primary/10 mb-4">
+          <div className="p-4 rounded-none bg-accent-primary/10 mb-4">
             <MagnifyingGlass size={40} weight="duotone" className="text-accent-primary" />
           </div>
           <h2 className="text-lg font-semibold text-text-primary">Ready to Scan</h2>
@@ -259,7 +259,7 @@ export default function Scanner() {
           </p>
           <button
             onClick={handleStartScan}
-            className="mt-6 flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-accent-primary to-accent-secondary hover:opacity-90 transition-opacity"
+            className="mt-6 flex items-center gap-2 px-6 py-3 rounded-none text-sm font-medium text-white bg-accent-primary hover:opacity-90 transition-opacity"
           >
             <Lightning size={18} weight="fill" />
             Start Scanning

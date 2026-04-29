@@ -91,13 +91,13 @@ export default function DevTools() {
             <>
               <button
                 onClick={() => setSelectedPaths(new Set())}
-                className="px-3 py-2 rounded-xl text-xs font-medium text-text-secondary hover:text-text-primary bg-white/[0.04] hover:bg-white/[0.08] transition-all"
+                className="px-3 py-2 rounded-none text-xs font-medium text-text-secondary hover:text-text-primary bg-bg-secondary hover:bg-bg-secondary transition-all"
               >
                 Clear ({selectedPaths.size})
               </button>
               <button
                 onClick={() => setShowConfirm(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium text-white bg-gradient-to-r from-caution to-caution/80 hover:opacity-90 transition-opacity"
+                className="flex items-center gap-2 px-4 py-2 rounded-none text-xs font-medium text-white bg-gradient-to-r from-caution to-caution/80 hover:opacity-90 transition-opacity"
               >
                 <Trash size={14} />
                 Clean {formatBytes(selectedSize)}
@@ -107,7 +107,7 @@ export default function DevTools() {
           <button
             onClick={selectAllSafe}
             disabled={items.length === 0}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-safe bg-safe/10 hover:bg-safe/20 border border-safe/20 transition-all disabled:opacity-40"
+            className="flex items-center gap-2 px-3 py-2 rounded-none text-xs font-medium text-safe bg-safe/10 hover:bg-safe/20 border border-safe/20 transition-all disabled:opacity-40"
           >
             <CheckCircle size={14} />
             Select Safe
@@ -115,7 +115,7 @@ export default function DevTools() {
           <button
             onClick={scan}
             disabled={isScanning}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-accent-primary to-accent-secondary hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-none text-sm font-medium text-white bg-accent-primary hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {isScanning ? (
               <>
@@ -134,14 +134,14 @@ export default function DevTools() {
 
       {/* Error */}
       {error && (
-        <div className="p-4 rounded-2xl bg-caution/10 border border-caution/20">
+        <div className="p-4 rounded-none bg-caution/10 border border-caution/20">
           <p className="text-sm text-caution">{error}</p>
         </div>
       )}
 
       {/* Loading */}
       {isScanning && items.length === 0 && (
-        <div className="glass rounded-2xl p-12 flex flex-col items-center justify-center">
+        <div className="glass rounded-none p-12 flex flex-col items-center justify-center">
           <Spinner size={32} className="text-accent-primary animate-spin mb-4" />
           <p className="text-sm text-text-secondary">Scanning for developer junk...</p>
           <p className="text-xs text-text-muted mt-1">Checking node_modules, Xcode, Docker, and more</p>
@@ -164,7 +164,7 @@ export default function DevTools() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="glass rounded-xl p-4"
+                className="glass rounded-none p-4"
               >
                 <p className="text-xs text-text-muted">{label}</p>
                 <p className="text-xl font-bold mt-1" style={{ color }}>
@@ -190,9 +190,9 @@ export default function DevTools() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="glass rounded-2xl p-16 flex flex-col items-center justify-center text-center"
+          className="glass rounded-none p-16 flex flex-col items-center justify-center text-center"
         >
-          <div className="p-4 rounded-2xl bg-safe/10 mb-4">
+          <div className="p-4 rounded-none bg-safe/10 mb-4">
             <CheckCircle size={40} weight="duotone" className="text-safe" />
           </div>
           <h2 className="text-lg font-semibold text-text-primary">All Clean!</h2>

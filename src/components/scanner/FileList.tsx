@@ -82,9 +82,9 @@ export function FileList({
   ];
 
   return (
-    <div className="rounded-2xl overflow-hidden border border-white/[0.06]">
+    <div className="rounded-none overflow-hidden border border-bg-tertiary">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-2.5 bg-white/[0.02] border-b border-white/[0.06] text-xs text-text-muted font-medium uppercase tracking-wider">
+      <div className="flex items-center gap-3 px-4 py-2.5 bg-bg-secondary border-b border-bg-tertiary text-xs text-text-muted font-medium uppercase tracking-wider">
         <div className="w-8" /> {/* checkbox space */}
         {columns.map(({ key, label, width }) => (
           <button
@@ -127,7 +127,7 @@ export function FileList({
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-white/[0.02] border-t border-white/[0.06] text-xs text-text-muted">
+      <div className="flex items-center justify-between px-4 py-2.5 bg-bg-secondary border-t border-bg-tertiary text-xs text-text-muted">
         <span>{sorted.length} items</span>
         <span>{formatBytes(sorted.reduce((a, n) => a + n.size, 0))} total</span>
       </div>
@@ -159,7 +159,7 @@ function FileRow({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ delay: Math.min(index * 0.02, 0.3) }}
-      className={`group flex items-center gap-3 px-4 py-2.5 border-b border-white/[0.03] hover:bg-white/[0.03] transition-colors cursor-default ${
+      className={`group flex items-center gap-3 px-4 py-2.5 border-b border-bg-tertiary hover:bg-bg-secondary transition-colors cursor-default ${
         isSelected ? 'bg-accent-primary/5' : ''
       }`}
     >
@@ -210,7 +210,7 @@ function FileRow({
       {/* Category */}
       <span className="w-28">
         <span
-          className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium"
+          className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-none text-xs font-medium"
           style={{ backgroundColor: `${categoryColor}15`, color: categoryColor }}
         >
           <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: categoryColor }} />

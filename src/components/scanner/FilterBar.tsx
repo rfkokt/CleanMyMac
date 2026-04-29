@@ -60,10 +60,10 @@ export function FilterBar({
       <div className="relative">
         <button
           onClick={() => { setShowCategories(!showCategories); setShowSafety(false); }}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-none text-xs font-medium transition-all ${
             categoryFilter.length > 0
               ? 'bg-accent-primary/15 text-accent-primary border border-accent-primary/30'
-              : 'bg-white/[0.04] text-text-secondary hover:text-text-primary border border-transparent hover:border-white/[0.08]'
+              : 'bg-bg-secondary text-text-secondary hover:text-text-primary border border-transparent hover:border-bg-tertiary'
           }`}
         >
           <FunnelSimple size={14} />
@@ -78,7 +78,7 @@ export function FilterBar({
         {showCategories && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setShowCategories(false)} />
-            <div className="absolute top-full left-0 mt-1 z-20 w-48 py-1 rounded-xl bg-bg-tertiary border border-white/[0.08] shadow-xl">
+            <div className="absolute top-full left-0 mt-1 z-20 w-48 py-1 rounded-none bg-bg-tertiary border border-bg-tertiary shadow-xl">
               {ALL_CATEGORIES.map((cat) => (
                 <button
                   key={cat}
@@ -86,7 +86,7 @@ export function FilterBar({
                   className={`w-full flex items-center gap-2 px-3 py-2 text-xs transition-colors ${
                     categoryFilter.includes(cat)
                       ? 'bg-accent-primary/10 text-text-primary'
-                      : 'text-text-secondary hover:bg-white/[0.04] hover:text-text-primary'
+                      : 'text-text-secondary hover:bg-bg-secondary hover:text-text-primary'
                   }`}
                 >
                   <span
@@ -105,10 +105,10 @@ export function FilterBar({
       <div className="relative">
         <button
           onClick={() => { setShowSafety(!showSafety); setShowCategories(false); }}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-none text-xs font-medium transition-all ${
             safetyFilter.length > 0
               ? 'bg-safe/15 text-safe border border-safe/30'
-              : 'bg-white/[0.04] text-text-secondary hover:text-text-primary border border-transparent hover:border-white/[0.08]'
+              : 'bg-bg-secondary text-text-secondary hover:text-text-primary border border-transparent hover:border-bg-tertiary'
           }`}
         >
           Safety
@@ -122,7 +122,7 @@ export function FilterBar({
         {showSafety && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setShowSafety(false)} />
-            <div className="absolute top-full left-0 mt-1 z-20 w-40 py-1 rounded-xl bg-bg-tertiary border border-white/[0.08] shadow-xl">
+            <div className="absolute top-full left-0 mt-1 z-20 w-40 py-1 rounded-none bg-bg-tertiary border border-bg-tertiary shadow-xl">
               {ALL_SAFETY_LEVELS.map((level) => (
                 <button
                   key={level}
@@ -130,7 +130,7 @@ export function FilterBar({
                   className={`w-full flex items-center gap-2 px-3 py-2 text-xs transition-colors ${
                     safetyFilter.includes(level)
                       ? 'bg-accent-primary/10 text-text-primary'
-                      : 'text-text-secondary hover:bg-white/[0.04] hover:text-text-primary'
+                      : 'text-text-secondary hover:bg-bg-secondary hover:text-text-primary'
                   }`}
                 >
                   {SAFETY_LABELS[level]}
@@ -145,7 +145,7 @@ export function FilterBar({
       {hasFilters && (
         <button
           onClick={clearAll}
-          className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs text-text-muted hover:text-text-primary transition-colors"
+          className="flex items-center gap-1 px-2 py-1.5 rounded-none text-xs text-text-muted hover:text-text-primary transition-colors"
         >
           <X size={12} />
           Clear

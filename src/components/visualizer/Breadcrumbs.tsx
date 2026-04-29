@@ -28,10 +28,10 @@ export function Breadcrumbs({ path, onNavigate }: BreadcrumbsProps) {
             <button
               onClick={() => onNavigate(i)}
               disabled={isLast}
-              className={`px-2 py-1 rounded-md transition-colors ${
+              className={`px-2 py-1 rounded-none transition-colors ${
                 isLast
                   ? 'text-text-primary font-medium cursor-default'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-white/[0.04]'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-bg-secondary'
               }`}
             >
               {isFirst ? (

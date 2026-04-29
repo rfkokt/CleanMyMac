@@ -16,6 +16,8 @@ import { useScanStore } from '../stores/scan-store';
 import { useScanner } from '../hooks/use-scanner';
 import { CategoryChart } from '../components/scanner/CategoryChart';
 import { FDAModal, FDABanner } from '../components/ui/FDAModal';
+import { TiltCard } from '../components/ui/TiltCard';
+import { GSAPScanner3D } from '../components/ui/GSAPScanner3D';
 import { formatBytes, formatPercent } from '../lib/format';
 
 export default function Dashboard() {
@@ -69,7 +71,7 @@ export default function Dashboard() {
         <button
           onClick={refresh}
           disabled={isLoading}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-text-secondary hover:text-text-primary transition-all duration-200 text-sm disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2 rounded-none bg-bg-secondary hover:bg-bg-secondary text-text-secondary hover:text-text-primary transition-all duration-200 text-sm disabled:opacity-50"
         >
           <ArrowClockwise size={16} className={isLoading ? 'animate-spin' : ''} />
           Refresh
@@ -87,10 +89,10 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="glass rounded-2xl p-6"
         >
+          <TiltCard className="glass rounded-none p-6 text-left w-full block">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2.5 rounded-xl bg-accent-primary/15">
+            <div className="p-2.5 rounded-none bg-accent-primary/15">
               <HardDrives size={24} weight="duotone" className="text-accent-primary" />
             </div>
             <div>
@@ -108,7 +110,7 @@ export default function Dashboard() {
           </div>
 
           {/* Usage bar */}
-          <div className="w-full h-3 bg-white/[0.06] rounded-full overflow-hidden">
+          <div className="w-full h-3 bg-bg-secondary rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${usagePercent}%` }}
@@ -124,65 +126,69 @@ export default function Dashboard() {
             <span>{formatBytes(diskInfo.used_space)} used</span>
             <span>{formatBytes(diskInfo.available_space)} available</span>
           </div>
+          </TiltCard>
         </motion.div>
       )}
 
       {/* Disk Info loading skeleton */}
       {!diskInfo && isLoading && (
-        <div className="glass rounded-2xl p-6 animate-pulse">
-          <div className="h-6 w-32 bg-white/[0.06] rounded mb-4" />
-          <div className="h-3 w-full bg-white/[0.06] rounded-full" />
+        <div className="glass rounded-none p-6 animate-pulse">
+          <div className="h-6 w-32 bg-bg-secondary rounded mb-4" />
+          <div className="h-3 w-full bg-bg-secondary rounded-full" />
         </div>
       )}
 
       {/* Quick Actions */}
       <div className="grid grid-cols-3 gap-4">
-        <motion.button
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleQuickScan}
-          disabled={isScanning}
-          className="glass rounded-2xl p-5 text-left hover:border-accent-primary/30 transition-all duration-200 disabled:opacity-50"
         >
-          <Lightning size={24} weight="duotone" className="text-accent-primary mb-3" />
-          <h3 className="text-sm font-semibold text-text-primary">Quick Scan</h3>
-          <p className="text-xs text-text-secondary mt-1">
-            {isScanning
-              ? `Scanning... ${progress?.scanned.toLocaleString() || 0} files`
-              : 'Scan home directory'}
-          </p>
-        </motion.button>
+          <TiltCard
+            onClick={handleQuickScan}
+            disabled={isScanning}
+            className="glass rounded-none p-5 text-left hover:border-accent-primary/30 transition-all duration-200 disabled:opacity-50 w-full"
+          >
+            <Lightning size={24} weight="duotone" className="text-accent-primary mb-3" />
+            <h3 className="text-sm font-semibold text-text-primary">Quick Scan</h3>
+            <p className="text-xs text-text-secondary mt-1">
+              {isScanning
+                ? `Scanning... ${progress?.scanned.toLocaleString() || 0} files`
+                : 'Scan home directory'}
+            </p>
+          </TiltCard>
+        </motion.div>
 
-        <motion.button
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => navigate('/dev-tools')}
-          className="glass rounded-2xl p-5 text-left hover:border-cat-devcache/30 transition-all duration-200"
         >
-          <Wrench size={24} weight="duotone" className="text-cat-devcache mb-3" />
-          <h3 className="text-sm font-semibold text-text-primary">Dev Cleanup</h3>
-          <p className="text-xs text-text-secondary mt-1">node_modules, Xcode, Docker</p>
-        </motion.button>
+          <TiltCard
+            onClick={() => navigate('/dev-tools')}
+            className="glass rounded-none p-5 text-left hover:border-cat-devcache/30 transition-all duration-200 w-full"
+          >
+            <Wrench size={24} weight="duotone" className="text-cat-devcache mb-3" />
+            <h3 className="text-sm font-semibold text-text-primary">Dev Cleanup</h3>
+            <p className="text-xs text-text-secondary mt-1">node_modules, Xcode, Docker</p>
+          </TiltCard>
+        </motion.div>
 
-        <motion.button
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => navigate('/large-files')}
-          className="glass rounded-2xl p-5 text-left hover:border-cat-media/30 transition-all duration-200"
         >
-          <FileMagnifyingGlass size={24} weight="duotone" className="text-cat-media mb-3" />
-          <h3 className="text-sm font-semibold text-text-primary">Large Files</h3>
-          <p className="text-xs text-text-secondary mt-1">Find files &gt; 100MB</p>
-        </motion.button>
+          <TiltCard
+            onClick={() => navigate('/large-files')}
+            className="glass rounded-none p-5 text-left hover:border-cat-media/30 transition-all duration-200 w-full"
+          >
+            <FileMagnifyingGlass size={24} weight="duotone" className="text-cat-media mb-3" />
+            <h3 className="text-sm font-semibold text-text-primary">Large Files</h3>
+            <p className="text-xs text-text-secondary mt-1">Find files &gt; 100MB</p>
+          </TiltCard>
+        </motion.div>
       </div>
 
       {/* Scanning progress */}
@@ -192,21 +198,34 @@ export default function Dashboard() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="glass rounded-2xl p-4"
+            className="glass rounded-none p-6 overflow-hidden"
           >
-            <div className="flex items-center gap-3 mb-2">
-              <Spinner size={16} className="text-accent-primary animate-spin" />
-              <span className="text-sm text-text-secondary">
-                Scanning... {progress.scanned.toLocaleString()} files
-              </span>
-            </div>
-            <p className="text-xs text-text-muted truncate">{progress.current_path}</p>
-            <div className="mt-2 w-full h-1 bg-white/[0.06] rounded-full overflow-hidden">
-              <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-accent-primary to-accent-secondary"
-                animate={{ width: ['0%', '100%'] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-              />
+            <div className="flex items-center gap-6">
+              {/* GSAP 3D Animation */}
+              <GSAPScanner3D />
+              
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-semibold text-text-primary">
+                    Scanning Storage...
+                  </span>
+                  <span className="text-sm font-medium text-accent-primary">
+                    {progress.scanned.toLocaleString()} files
+                  </span>
+                </div>
+                
+                <div className="w-full h-1.5 bg-bg-tertiary rounded-none overflow-hidden mb-2">
+                  <motion.div
+                    className="h-full bg-accent-primary"
+                    animate={{ width: ['0%', '100%'] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+                  />
+                </div>
+                
+                <p className="text-xs text-text-muted truncate">
+                  {progress.current_path}
+                </p>
+              </div>
             </div>
           </motion.div>
         )}
@@ -248,7 +267,7 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25 + i * 0.05 }}
-              className="glass rounded-xl p-4"
+              className="glass rounded-none p-4"
             >
               <p className="text-xs text-text-muted">{label}</p>
               <p className="text-lg font-bold mt-1" style={{ color }}>{value}</p>
@@ -266,7 +285,7 @@ export default function Dashboard() {
             transition={{ delay: 0.3 }}
             whileHover={{ scale: 1.01 }}
             onClick={() => navigate('/visualize')}
-            className="glass rounded-2xl p-5 text-left hover:border-accent-secondary/30 transition-all group"
+            className="glass rounded-none p-5 text-left hover:border-accent-secondary/30 transition-all group"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -286,7 +305,7 @@ export default function Dashboard() {
             transition={{ delay: 0.35 }}
             whileHover={{ scale: 1.01 }}
             onClick={() => navigate('/scan')}
-            className="glass rounded-2xl p-5 text-left hover:border-accent-primary/30 transition-all group"
+            className="glass rounded-none p-5 text-left hover:border-accent-primary/30 transition-all group"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">

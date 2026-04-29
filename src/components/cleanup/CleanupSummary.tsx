@@ -18,7 +18,7 @@ export function CleanupSummary({ result, onDismiss }: CleanupSummaryProps) {
       exit={{ opacity: 0, y: 20, scale: 0.95 }}
       className="fixed bottom-6 right-6 z-40 w-80"
     >
-      <div className={`rounded-2xl border shadow-2xl overflow-hidden ${
+      <div className={`rounded-none border shadow-2xl overflow-hidden ${
         hasFailures
           ? 'bg-bg-secondary border-review/20'
           : 'bg-bg-secondary border-safe/20'
@@ -27,11 +27,11 @@ export function CleanupSummary({ result, onDismiss }: CleanupSummaryProps) {
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               {hasFailures ? (
-                <div className="p-2 rounded-xl bg-review/15">
+                <div className="p-2 rounded-none bg-review/15">
                   <Warning size={20} weight="duotone" className="text-review" />
                 </div>
               ) : (
-                <div className="p-2 rounded-xl bg-safe/15">
+                <div className="p-2 rounded-none bg-safe/15">
                   <CheckCircle size={20} weight="duotone" className="text-safe" />
                 </div>
               )}
@@ -46,7 +46,7 @@ export function CleanupSummary({ result, onDismiss }: CleanupSummaryProps) {
             </div>
             <button
               onClick={onDismiss}
-              className="p-1 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/[0.06] transition-colors"
+              className="p-1 rounded-none text-text-muted hover:text-text-primary hover:bg-bg-secondary transition-colors"
             >
               <X size={14} />
             </button>
