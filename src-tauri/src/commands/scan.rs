@@ -2,8 +2,22 @@ use crate::models::{FileNode, ScanProgress, ScanResult};
 use crate::scanner::categorizer::categorize_path;
 use crate::scanner::rules::assess_safety;
 use std::collections::HashMap;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Instant;
 use tauri::Emitter;
+
+/// Directories to skip during scanning (system/virtual dirs that cause hangs)
+const SKIP_DIRS: &[&str] = &[
+    ".Spotlight-V100",
+    ".fseventsd",
+    ".Trashes",
+    ".DocumentRevisions-V100",
+    ".vol",
+    "System",
+    ".TemporaryItems",
+    "private/var/db",
+    "private/var/folders",
+];
 
 #[tauri::command]
 pub async fn start_scan(
@@ -12,7 +26,7 @@ pub async fn start_scan(
     max_depth: Option<u32>,
 ) -> Result<ScanResult, String> {
     let start = Instant::now();
-    let root_path = std::path::Path::new(&path);
+    let root_path = std::path::Path::new(&path).to_path_buf();
 
     if !root_path.exists() {
         return Err(format!("Path does not exist: {}", path));
@@ -21,26 +35,46 @@ pub async fn start_scan(
         return Err(format!("Path is not a directory: {}", path));
     }
 
-    let mut file_count: u64 = 0;
-    let mut dir_count: u64 = 0;
-    let mut categories: HashMap<String, u64> = HashMap::new();
-    let mut scanned: u64 = 0;
-
     let depth = max_depth.unwrap_or(u32::MAX);
 
-    let root = scan_directory(root_path, depth, &app, &mut file_count, &mut dir_count, &mut categories, &mut scanned);
+    // Run the scan in a blocking thread so it doesn't starve the async runtime
+    let result = tokio::task::spawn_blocking(move || {
+        let mut file_count: u64 = 0;
+        let mut dir_count: u64 = 0;
+        let mut categories: HashMap<String, u64> = HashMap::new();
+        let scanned = AtomicU64::new(0);
 
-    let duration = start.elapsed().as_millis() as u64;
-    let total_size = root.size;
+        let root = scan_directory(
+            &root_path,
+            depth,
+            &app,
+            &mut file_count,
+            &mut dir_count,
+            &mut categories,
+            &scanned,
+        );
 
-    Ok(ScanResult {
-        root,
-        total_size,
-        file_count,
-        dir_count,
-        scan_duration_ms: duration,
-        categories,
+        let duration = start.elapsed().as_millis() as u64;
+        let total_size = root.size;
+
+        ScanResult {
+            root,
+            total_size,
+            file_count,
+            dir_count,
+            scan_duration_ms: duration,
+            categories,
+        }
     })
+    .await
+    .map_err(|e| format!("Scan task failed: {}", e))?;
+
+    Ok(result)
+}
+
+/// Check if a directory name should be skipped
+fn should_skip(name: &str) -> bool {
+    SKIP_DIRS.iter().any(|s| name == *s)
 }
 
 fn scan_directory(
@@ -50,7 +84,7 @@ fn scan_directory(
     file_count: &mut u64,
     dir_count: &mut u64,
     categories: &mut HashMap<String, u64>,
-    scanned: &mut u64,
+    scanned: &AtomicU64,
 ) -> FileNode {
     let name = path
         .file_name()
@@ -72,6 +106,11 @@ fn scan_directory(
                         .file_name()
                         .to_string_lossy()
                         .to_string();
+
+                    // Skip system directories that cause hangs or are useless
+                    if should_skip(&entry_name) {
+                        continue;
+                    }
 
                     if let Ok(metadata) = entry.metadata() {
                         if metadata.is_dir() {
@@ -118,17 +157,21 @@ fn scan_directory(
                         }
                     }
 
-                    *scanned += 1;
-                    // Emit progress every 200 files
-                    if *scanned % 200 == 0 {
+                    let count = scanned.fetch_add(1, Ordering::Relaxed);
+
+                    // Emit progress every 500 files (not too frequent to avoid IPC spam)
+                    if count % 500 == 0 {
                         let _ = app.emit(
                             "scan://progress",
                             ScanProgress {
-                                scanned: *scanned,
+                                scanned: count,
                                 current_path: entry_path.to_string_lossy().to_string(),
                                 estimated_total: None,
                             },
                         );
+
+                        // Yield to let the OS scheduler breathe — prevents system lag
+                        std::thread::yield_now();
                     }
                 }
             }
@@ -168,50 +211,65 @@ pub async fn find_large_files(
     path: String,
     min_size_bytes: u64,
 ) -> Result<Vec<FileNode>, String> {
-    let root_path = std::path::Path::new(&path);
+    let root_path = std::path::Path::new(&path).to_path_buf();
     if !root_path.exists() {
         return Err(format!("Path does not exist: {}", path));
     }
 
-    let mut large_files = Vec::new();
+    // Run in blocking thread to prevent async runtime starvation
+    let large_files = tokio::task::spawn_blocking(move || {
+        let mut results = Vec::new();
 
-    for entry in jwalk::WalkDir::new(root_path)
-        .skip_hidden(false)
-        .into_iter()
-        .filter_map(|e| e.ok())
-    {
-        if entry.file_type().is_file() {
-            if let Ok(metadata) = entry.metadata() {
-                let size = metadata.len();
-                if size >= min_size_bytes {
-                    let name = entry.file_name().to_string_lossy().to_string();
-                    let entry_path = entry.path();
-                    let category = categorize_path(&entry_path, &name);
-                    let safety = assess_safety(&entry_path, &category);
+        for entry in jwalk::WalkDir::new(&root_path)
+            .skip_hidden(false)
+            .parallelism(jwalk::Parallelism::RayonNewPool(2)) // Limit to 2 threads
+            .into_iter()
+            .filter_map(|e| e.ok())
+        {
+            // Skip system directories
+            if let Some(name) = entry.path().file_name() {
+                if should_skip(&name.to_string_lossy()) {
+                    continue;
+                }
+            }
 
-                    let last_modified = metadata
-                        .modified()
-                        .ok()
-                        .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
-                        .map(|d| d.as_secs() as i64);
+            if entry.file_type().is_file() {
+                if let Ok(metadata) = entry.metadata() {
+                    let size = metadata.len();
+                    if size >= min_size_bytes {
+                        let name = entry.file_name().to_string_lossy().to_string();
+                        let entry_path = entry.path();
+                        let category = categorize_path(&entry_path, &name);
+                        let safety = assess_safety(&entry_path, &category);
 
-                    large_files.push(FileNode {
-                        name,
-                        path: entry_path.to_string_lossy().to_string(),
-                        size,
-                        is_dir: false,
-                        file_type: category,
-                        children: None,
-                        last_accessed: None,
-                        last_modified,
-                        safety_level: safety,
-                    });
+                        let last_modified = metadata
+                            .modified()
+                            .ok()
+                            .and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok())
+                            .map(|d| d.as_secs() as i64);
+
+                        results.push(FileNode {
+                            name,
+                            path: entry_path.to_string_lossy().to_string(),
+                            size,
+                            is_dir: false,
+                            file_type: category,
+                            children: None,
+                            last_accessed: None,
+                            last_modified,
+                            safety_level: safety,
+                        });
+                    }
                 }
             }
         }
-    }
 
-    large_files.sort_by(|a, b| b.size.cmp(&a.size));
+        results.sort_by(|a, b| b.size.cmp(&a.size));
+        results
+    })
+    .await
+    .map_err(|e| format!("Large files scan failed: {}", e))?;
+
     Ok(large_files)
 }
 

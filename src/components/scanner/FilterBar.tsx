@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FunnelSimple, X } from '@phosphor-icons/react';
 import type { FileCategory, SafetyLevel } from '../../types';
-import { getCategoryColor, getSafetyColor } from '../../lib/format';
+import { getCategoryColor } from '../../lib/format';
 
 interface FilterBarProps {
   categoryFilter: FileCategory[];

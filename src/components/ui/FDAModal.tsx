@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldWarning, ArrowSquareOut, X } from '@phosphor-icons/react';
 import { useState } from 'react';
+import { openSystemPreferences } from '../../services/tauri';
 
 interface FDAModalProps {
   isOpen: boolean;
@@ -86,13 +87,7 @@ export function FDAModal({ isOpen, onDismiss }: FDAModalProps) {
                 </button>
                 <button
                   onClick={() => {
-                    // Open System Settings > Privacy & Security > Full Disk Access
-                    import('@tauri-apps/plugin-shell').then(({ open }) => {
-                      open('x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles');
-                    }).catch(() => {
-                      // Fallback
-                      window.open('x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles');
-                    });
+                    openSystemPreferences().catch(console.error);
                   }}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-gradient-to-r from-accent-primary to-accent-secondary hover:opacity-90 transition-opacity"
                 >

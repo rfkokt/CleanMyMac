@@ -2,6 +2,15 @@ use crate::models::{DevJunkItem, DevJunkType, SafetyLevel};
 
 #[tauri::command]
 pub async fn scan_dev_junk() -> Result<Vec<DevJunkItem>, String> {
+    // Run in blocking thread to prevent async runtime starvation
+    tokio::task::spawn_blocking(|| {
+        scan_dev_junk_inner()
+    })
+    .await
+    .map_err(|e| format!("Dev junk scan failed: {}", e))?
+}
+
+fn scan_dev_junk_inner() -> Result<Vec<DevJunkItem>, String> {
     let home = dirs::home_dir().ok_or("Cannot determine home directory")?;
     let mut items: Vec<DevJunkItem> = Vec::new();
 
@@ -110,6 +119,7 @@ fn scan_for_node_modules(
 
 fn dir_size_fast(path: &std::path::Path) -> u64 {
     jwalk::WalkDir::new(path)
+        .parallelism(jwalk::Parallelism::RayonNewPool(2))
         .into_iter()
         .filter_map(|e| e.ok())
         .filter(|e| e.file_type().is_file())

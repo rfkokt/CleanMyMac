@@ -11,6 +11,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::disk_info::get_disk_info,
             commands::disk_info::check_fda_status,
+            commands::disk_info::open_system_preferences,
             commands::scan::start_scan,
             commands::scan::find_large_files,
             commands::scan::open_in_finder,

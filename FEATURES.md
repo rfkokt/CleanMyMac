@@ -27,7 +27,7 @@ Each feature has:
 ## Phase 1: Foundation (MVP Core)
 
 ### F-001: Disk Info Dashboard
-- **Status**: `planned`
+- **Status**: `done`
 - **Priority**: `P0`
 - **Description**: Show total/used/available disk space on the main dashboard with a visual progress bar and percentage.
 - **Touches**:
@@ -35,13 +35,13 @@ Each feature has:
   - Frontend: `pages/Dashboard.tsx`, `hooks/use-disk-info.ts`, `stores/app-store.ts`
 - **Depends On**: None
 - **Acceptance Criteria**:
-  - [ ] Shows total, used, and available space in human-readable format (e.g., "256 GB / 512 GB")
-  - [ ] Visual bar with color gradient (green → yellow → red based on usage %)
-  - [ ] Updates on app launch and after cleanup operations
-  - [ ] Handles errors gracefully if disk info unavailable
+  - [x] Shows total, used, and available space in human-readable format (e.g., "256 GB / 512 GB")
+  - [x] Visual bar with color gradient (green → yellow → red based on usage %)
+  - [x] Updates on app launch and after cleanup operations
+  - [x] Handles errors gracefully if disk info unavailable
 
 ### F-002: File System Scanner
-- **Status**: `planned`
+- **Status**: `done`
 - **Priority**: `P0`
 - **Description**: Scan a given directory recursively, build a tree of FileNodes with sizes, categories, and safety levels. Stream progress to frontend.
 - **Touches**:
@@ -49,30 +49,30 @@ Each feature has:
   - Frontend: `hooks/use-scanner.ts`, `stores/scan-store.ts`, `pages/Scanner.tsx`
 - **Depends On**: F-001
 - **Acceptance Criteria**:
-  - [ ] Scans home directory in < 30 seconds (Phase 1: shallow, Phase 2: deep)
-  - [ ] Streams progress events (`scan://progress`) every ~100 files
-  - [ ] Categorizes files into FileCategory enum
-  - [ ] Assigns SafetyLevel to each file/directory
-  - [ ] Handles permission-denied by skipping (not crashing)
-  - [ ] Returns complete ScanResult with category breakdown
+  - [x] Scans home directory in < 30 seconds (Phase 1: shallow, Phase 2: deep)
+  - [x] Streams progress events (`scan://progress`) every ~100 files
+  - [x] Categorizes files into FileCategory enum
+  - [x] Assigns SafetyLevel to each file/directory
+  - [x] Handles permission-denied by skipping (not crashing)
+  - [x] Returns complete ScanResult with category breakdown
 
 ### F-003: Scan Results List View
-- **Status**: `planned`
+- **Status**: `done`
 - **Priority**: `P0`
 - **Description**: Display scan results as a sortable, filterable list. Users can sort by size, name, date. Filter by category and safety level.
 - **Touches**:
   - Frontend: `pages/Scanner.tsx`, `components/scanner/FileList.tsx`, `components/scanner/FilterBar.tsx`
 - **Depends On**: F-002
 - **Acceptance Criteria**:
-  - [ ] Table/list showing: name, size, category, safety level, last modified
-  - [ ] Sort by any column (default: size descending)
-  - [ ] Filter by FileCategory (multi-select)
-  - [ ] Filter by SafetyLevel (show only 🟢, only 🟡, etc.)
-  - [ ] Click row to expand and see children (if directory)
-  - [ ] Breadcrumb navigation for drill-down
+  - [x] Table/list showing: name, size, category, safety level, last modified
+  - [x] Sort by any column (default: size descending)
+  - [x] Filter by FileCategory (multi-select)
+  - [x] Filter by SafetyLevel (show only 🟢, only 🟡, etc.)
+  - [x] Click row to expand and see children (if directory)
+  - [x] Breadcrumb navigation for drill-down
 
 ### F-004: Basic Cleanup (Move to Trash)
-- **Status**: `planned`
+- **Status**: `done`
 - **Priority**: `P0`
 - **Description**: Select files/folders from scan results and move them to macOS Trash. Show confirmation dialog with total size before deletion.
 - **Touches**:
@@ -80,32 +80,32 @@ Each feature has:
   - Frontend: `hooks/use-cleanup.ts`, `components/cleanup/ConfirmDialog.tsx`, `components/cleanup/CleanupSummary.tsx`
 - **Depends On**: F-003
 - **Acceptance Criteria**:
-  - [ ] Multi-select items via checkboxes
-  - [ ] "Select all safe (🟢)" quick action
-  - [ ] Confirmation dialog showing: item count, total size to free
-  - [ ] 🔴 items require typing "DELETE" to confirm (extra safety)
-  - [ ] Uses `trash` crate (never permanent delete)
-  - [ ] Progress bar during cleanup
-  - [ ] Success toast: "Freed X.X GB!"
-  - [ ] Scan results update after cleanup
+  - [x] Multi-select items via checkboxes
+  - [x] "Select all safe (🟢)" quick action
+  - [x] Confirmation dialog showing: item count, total size to free
+  - [x] 🔴 items require typing "DELETE" to confirm (extra safety)
+  - [x] Uses `trash` crate (never permanent delete)
+  - [x] Progress bar during cleanup
+  - [x] Success toast: "Freed X.X GB!"
+  - [x] Scan results update after cleanup
 
 ### F-005: App Shell & Navigation
-- **Status**: `planned`
+- **Status**: `done`
 - **Priority**: `P0`
 - **Description**: Main app layout with sidebar navigation, header, and content area. Dark theme with glassmorphism.
 - **Touches**:
   - Frontend: `App.tsx`, `components/layout/Sidebar.tsx`, `components/layout/Shell.tsx`, `components/layout/Header.tsx`, `index.css`
 - **Depends On**: None
 - **Acceptance Criteria**:
-  - [ ] Sidebar with nav items and icons (Dashboard, Scanner, Visualizer, Dev Tools, Settings)
-  - [ ] Active page highlighted in sidebar
-  - [ ] Smooth page transitions (framer-motion)
+  - [x] Sidebar with nav items and icons (Dashboard, Scanner, Visualizer, Dev Tools, Settings)
+  - [x] Active page highlighted in sidebar
+  - [x] Smooth page transitions (framer-motion)
   - [ ] Responsive: sidebar collapses on small windows
-  - [ ] Native macOS title bar with traffic light buttons
-  - [ ] Dark theme applied globally
+  - [x] Native macOS title bar with traffic light buttons
+  - [x] Dark theme applied globally
 
 ### F-006: FDA (Full Disk Access) Onboarding
-- **Status**: `planned`
+- **Status**: `done`
 - **Priority**: `P0`
 - **Description**: On first launch, check if app has Full Disk Access. If not, show a friendly onboarding modal explaining why it's needed and a button to open System Settings.
 - **Touches**:
@@ -113,10 +113,10 @@ Each feature has:
   - Frontend: `components/ui/FDAModal.tsx`, `stores/app-store.ts`
 - **Depends On**: F-005
 - **Acceptance Criteria**:
-  - [ ] Detects FDA status on app launch
-  - [ ] If not granted: modal with explanation + "Open System Settings" button
-  - [ ] "Open System Settings" opens Privacy & Security → Full Disk Access
-  - [ ] User can dismiss modal but sees a persistent banner
+  - [x] Detects FDA status on app launch
+  - [x] If not granted: modal with explanation + "Open System Settings" button
+  - [x] "Open System Settings" opens Privacy & Security → Full Disk Access
+  - [x] User can dismiss modal but sees a persistent banner
   - [ ] Re-checks FDA status when app regains focus (user might have granted it)
 
 ---
@@ -124,23 +124,23 @@ Each feature has:
 ## Phase 2: Visualization & Developer Tools
 
 ### F-007: Treemap Visualization
-- **Status**: `planned`
+- **Status**: `done`
 - **Priority**: `P1`
 - **Description**: Interactive treemap (using Nivo) showing disk usage. Rectangles sized by file/folder size, colored by category. Click to drill down into directories.
 - **Touches**:
   - Frontend: `pages/Visualizer.tsx`, `components/visualizer/Treemap.tsx`, `components/visualizer/TreemapTooltip.tsx`, `components/visualizer/Breadcrumbs.tsx`
 - **Depends On**: F-002
 - **Acceptance Criteria**:
-  - [ ] Treemap renders from ScanResult data
-  - [ ] Each rectangle colored by FileCategory
-  - [ ] Hover shows tooltip: name, size, category
-  - [ ] Click on directory to drill-down (zoom in)
-  - [ ] Breadcrumb trail for navigation back
-  - [ ] Smooth animation on drill-down/out
+  - [x] Treemap renders from ScanResult data
+  - [x] Each rectangle colored by FileCategory
+  - [x] Hover shows tooltip: name, size, category
+  - [x] Click on directory to drill-down (zoom in)
+  - [x] Breadcrumb trail for navigation back
+  - [x] Smooth animation on drill-down/out
   - [ ] Right-click context menu: "Open in Finder", "Delete", "Details"
 
 ### F-008: Developer Junk Scanner
-- **Status**: `planned`
+- **Status**: `done`
 - **Priority**: `P1`
 - **Description**: Dedicated scanner that finds developer-specific junk: node_modules, Xcode DerivedData, Docker volumes, .gradle, Homebrew cache, etc.
 - **Touches**:
@@ -148,16 +148,16 @@ Each feature has:
   - Frontend: `pages/DevTools.tsx`, `components/cleanup/DevJunkList.tsx`, `hooks/use-dev-tools.ts`
 - **Depends On**: F-002, F-004
 - **Acceptance Criteria**:
-  - [ ] Scans all known dev junk paths (see TECHNICAL.md §9)
-  - [ ] Groups results by DevJunkType
-  - [ ] Shows per-group totals (e.g., "node_modules: 15.3 GB across 42 projects")
-  - [ ] Shows project name for each item (parsed from parent directory)
-  - [ ] Shows last modified date (stale projects highlighted)
-  - [ ] Batch select/delete per group
-  - [ ] "Clean All Safe" button for one-click cleanup
+  - [x] Scans all known dev junk paths (see TECHNICAL.md §9)
+  - [x] Groups results by DevJunkType
+  - [x] Shows per-group totals (e.g., "node_modules: 15.3 GB across 42 projects")
+  - [x] Shows project name for each item (parsed from parent directory)
+  - [x] Shows last modified date (stale projects highlighted)
+  - [x] Batch select/delete per group
+  - [x] "Clean All Safe" button for one-click cleanup
 
 ### F-009: Large Files Finder
-- **Status**: `planned`
+- **Status**: `done`
 - **Priority**: `P1`
 - **Description**: Find and list all files larger than a configurable threshold (default 100MB), sorted by size. Show last access date to identify forgotten files.
 - **Touches**:
@@ -165,25 +165,25 @@ Each feature has:
   - Frontend: `pages/LargeFiles.tsx`, `components/scanner/LargeFileList.tsx`
 - **Depends On**: F-002
 - **Acceptance Criteria**:
-  - [ ] Configurable size threshold (50MB, 100MB, 500MB, 1GB)
-  - [ ] List sorted by size descending
-  - [ ] Shows: filename, path, size, last accessed, file type
-  - [ ] Highlights files not accessed in 6+ months
-  - [ ] Quick actions: Open in Finder, Move to Trash, Ignore
+  - [x] Configurable size threshold (50MB, 100MB, 500MB, 1GB)
+  - [x] List sorted by size descending
+  - [x] Shows: filename, path, size, last accessed, file type
+  - [x] Highlights files not accessed in 6+ months
+  - [x] Quick actions: Open in Finder, Move to Trash
   - [ ] "Ignore" list persisted (don't show ignored files again)
 
 ### F-010: Category Breakdown Chart
-- **Status**: `planned`
+- **Status**: `done`
 - **Priority**: `P1`
 - **Description**: Donut/pie chart on dashboard showing storage breakdown by FileCategory with legend and sizes.
 - **Touches**:
   - Frontend: `components/scanner/CategoryChart.tsx` (on Dashboard page)
 - **Depends On**: F-002
 - **Acceptance Criteria**:
-  - [ ] Donut chart with category colors from design system
-  - [ ] Legend showing category name, size, percentage
-  - [ ] Click category to navigate to filtered Scanner view
-  - [ ] Smooth animation on data load
+  - [x] Donut chart with category colors from design system
+  - [x] Legend showing category name, size, percentage
+  - [x] Click category to navigate to filtered Scanner view
+  - [x] Smooth animation on data load
 
 ---
 
@@ -285,20 +285,20 @@ Each feature has:
 ### Phase 1 Progress
 | ID | Feature | Status | Priority |
 |----|---------|--------|----------|
-| F-001 | Disk Info Dashboard | `planned` | P0 |
-| F-002 | File System Scanner | `planned` | P0 |
-| F-003 | Scan Results List View | `planned` | P0 |
-| F-004 | Basic Cleanup | `planned` | P0 |
-| F-005 | App Shell & Navigation | `planned` | P0 |
-| F-006 | FDA Onboarding | `planned` | P0 |
+| F-001 | Disk Info Dashboard | `done` | P0 |
+| F-002 | File System Scanner | `done` | P0 |
+| F-003 | Scan Results List View | `done` | P0 |
+| F-004 | Basic Cleanup | `done` | P0 |
+| F-005 | App Shell & Navigation | `done` | P0 |
+| F-006 | FDA Onboarding | `done` | P0 |
 
 ### Phase 2 Progress
 | ID | Feature | Status | Priority |
 |----|---------|--------|----------|
-| F-007 | Treemap Visualization | `planned` | P1 |
-| F-008 | Developer Junk Scanner | `planned` | P1 |
-| F-009 | Large Files Finder | `planned` | P1 |
-| F-010 | Category Breakdown Chart | `planned` | P1 |
+| F-007 | Treemap Visualization | `done` | P1 |
+| F-008 | Developer Junk Scanner | `done` | P1 |
+| F-009 | Large Files Finder | `done` | P1 |
+| F-010 | Category Breakdown Chart | `done` | P1 |
 
 ### Phase 3 Progress
 | ID | Feature | Status | Priority |

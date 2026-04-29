@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Folder,
-  Trash,
   ArrowSquareOut,
   CheckSquare,
   Square,
@@ -92,7 +91,7 @@ function DevJunkGroup({
   const Icon = meta.icon;
   const totalSize = items.reduce((s, i) => s + i.size, 0);
   const allSelected = items.every((i) => selectedPaths.has(i.path));
-  const someSelected = items.some((i) => selectedPaths.has(i.path));
+
 
   const handleSelectAll = () => {
     if (allSelected) {

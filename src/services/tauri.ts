@@ -9,6 +9,9 @@ export const getDiskInfo = () =>
 export const checkFDAStatus = () =>
   invoke<boolean>('check_fda_status');
 
+export const openSystemPreferences = () =>
+  invoke<void>('open_system_preferences');
+
 // ── Scanning ──
 export const startScan = (path: string, maxDepth?: number) =>
   invoke<ScanResult>('start_scan', { path, maxDepth });

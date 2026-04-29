@@ -1,12 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  CaretDown,
-  CaretRight,
   Folder,
   File,
   ArrowsDownUp,
-  FunnelSimple,
   CheckSquare,
   Square,
   ArrowSquareOut,

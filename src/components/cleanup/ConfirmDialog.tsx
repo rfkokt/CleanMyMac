@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash, Warning, ShieldCheck, X, Spinner } from '@phosphor-icons/react';
+import { Trash, Warning, ShieldCheck, X } from '@phosphor-icons/react';
 import type { FileNode } from '../../types';
 import { formatBytes } from '../../lib/format';
 
@@ -127,19 +127,27 @@ export function ConfirmDialog({
 
                   {/* Items list preview */}
                   <div className="mt-4 max-h-40 overflow-y-auto rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                    {items.slice(0, 20).map((item) => (
-                      <div
-                        key={item.path}
-                        className="flex items-center justify-between px-3 py-2 border-b border-white/[0.03] last:border-0"
-                      >
-                        <span className="text-xs text-text-secondary truncate flex-1 mr-2">
-                          {item.name}
-                        </span>
-                        <span className="text-xs text-text-muted tabular-nums shrink-0">
-                          {formatBytes(item.size)}
-                        </span>
-                      </div>
-                    ))}
+                    {items.slice(0, 20).map((item) => {
+                      const diskLabel = getDiskLabel(item.path);
+                      return (
+                        <div
+                          key={item.path}
+                          className="flex items-center justify-between px-3 py-2 border-b border-white/[0.03] last:border-0"
+                        >
+                          <div className="flex-1 min-w-0 mr-2">
+                            <span className="text-xs text-text-secondary truncate block">
+                              {item.name}
+                            </span>
+                            <span className="text-[10px] text-text-muted truncate block mt-0.5">
+                              {diskLabel} — {shortenPath(item.path)}
+                            </span>
+                          </div>
+                          <span className="text-xs text-text-muted tabular-nums shrink-0">
+                            {formatBytes(item.size)}
+                          </span>
+                        </div>
+                      );
+                    })}
                     {items.length > 20 && (
                       <div className="px-3 py-2 text-xs text-text-muted text-center">
                         + {items.length - 20} more items
@@ -194,4 +202,27 @@ export function ConfirmDialog({
       )}
     </AnimatePresence>
   );
+}
+
+/** Determine which disk/volume a path belongs to */
+function getDiskLabel(path: string): string {
+  if (path.startsWith('/Volumes/')) {
+    // External or named volume: /Volumes/External M4/...
+    const parts = path.split('/');
+    return `💾 ${parts[2]}`;
+  }
+  // Root disk (Macintosh HD)
+  return '💻 Macintosh HD';
+}
+
+/** Shorten a file path for display */
+function shortenPath(path: string): string {
+  // Replace home dir with ~
+  const shortened = path.replace(/^\/Users\/[^/]+\//, '~/');
+  // If still long, take last 2 segments
+  if (shortened.length > 60) {
+    const parts = shortened.split('/');
+    return '…/' + parts.slice(-2).join('/');
+  }
+  return shortened;
 }
