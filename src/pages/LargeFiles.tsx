@@ -221,7 +221,7 @@ export default function LargeFiles() {
       {!isScanning && files.length > 0 && (
         <>
           {/* Summary */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-4">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -255,7 +255,7 @@ export default function LargeFiles() {
           </div>
 
           {/* File list */}
-          <div className="glass rounded-3xl overflow-hidden border border-white/5">
+          <div className="glass rounded-3xl overflow-hidden border border-white/5 mt-4">
             {/* Header */}
             <div className="flex items-center gap-3 px-4 py-3 bg-white/5 border-b border-white/5 text-xs text-white/50 font-medium uppercase tracking-wider">
               <div className="w-8" />
@@ -278,7 +278,7 @@ export default function LargeFiles() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: Math.min(i * 0.02, 0.3) }}
-                    className={`group flex items-center gap-3 px-4 py-3 border-b border-white/5 hover:bg-white/5 transition-colors ${
+                    className={`group flex items-center gap-3 px-5 py-4 border-b border-white/5 hover:bg-white/5 transition-colors ${
                       selectedPaths.has(file.path) ? 'bg-[#FF2E93]/10' : ''
                     }`}
                   >
