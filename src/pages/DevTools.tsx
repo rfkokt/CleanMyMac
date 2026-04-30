@@ -5,6 +5,7 @@ import {
   ArrowClockwise,
   Spinner,
   CheckCircle,
+  Wrench,
 } from '@phosphor-icons/react';
 import { useDevTools } from '../hooks/use-dev-tools';
 import { useCleanupStore } from '../stores/cleanup-store';
@@ -139,11 +140,63 @@ export default function DevTools() {
 
       {/* Loading */}
       {isScanning && items.length === 0 && (
-        <div className="glass rounded-3xl p-12 flex flex-col items-center justify-center">
-          <Spinner size={32} className="text-[#00F0FF] animate-spin mb-4" />
-          <p className="text-sm text-white/80">Scanning for developer junk...</p>
-          <p className="text-xs text-white/50 mt-1">Checking node_modules, Xcode, Docker, and more</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+          className="flex-1 flex flex-col items-center justify-center text-center -mt-12"
+        >
+          <div className="relative mb-8">
+            <motion.div
+              className="absolute inset-0 rounded-full bg-gradient-to-br from-[#FF9F0A] to-[#FF2E93] blur-3xl opacity-30"
+              animate={{ scale: [1, 1.15, 1], opacity: [0.25, 0.4, 0.25] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <motion.div
+              className="relative w-40 h-40 rounded-full flex items-center justify-center"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255, 159, 10, 0.3) 0%, rgba(255, 46, 147, 0.15) 100%)',
+                boxShadow: `
+                  inset 0 8px 32px rgba(255, 255, 255, 0.2),
+                  inset 0 -8px 32px rgba(0, 0, 0, 0.1),
+                  0 20px 60px rgba(255, 159, 10, 0.3),
+                  0 0 0 1px rgba(255, 255, 255, 0.15)
+                `,
+                backdropFilter: 'blur(20px)',
+              }}
+              animate={{ y: [0, -8, 0], rotateX: [0, 3, 0], rotateY: [0, -3, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 50%)',
+                  clipPath: 'ellipse(80% 40% at 50% 10%)',
+                }}
+              />
+              <motion.div
+                className="absolute inset-4 rounded-full border-2 border-[#FF9F0A]/30 border-dashed"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+              />
+              <motion.div
+                className="absolute inset-8 rounded-full border border-[#FF2E93]/40"
+                animate={{ rotate: -360 }}
+                transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+              />
+              <div className="relative z-10 text-[#FF9F0A] drop-shadow-[0_0_15px_rgba(255,159,10,0.5)]">
+                <Spinner size={48} className="animate-spin" />
+              </div>
+            </motion.div>
+          </div>
+
+          <h2 className="text-3xl font-semibold text-text-primary mb-3">
+            Scanning...
+          </h2>
+          <p className="text-base text-text-secondary max-w-md leading-relaxed">
+            Checking node_modules, Xcode, Docker, and more
+          </p>
+        </motion.div>
       )}
 
       {/* Results */}
@@ -187,17 +240,83 @@ export default function DevTools() {
 
       {!isScanning && items.length === 0 && !error && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="glass rounded-3xl p-16 flex flex-col items-center justify-center text-center border border-white/5"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+          className="flex-1 flex flex-col items-center justify-center text-center -mt-12"
         >
-          <div className="p-5 rounded-full bg-[#0D9488]/20 border border-[#0D9488]/30 shadow-[0_0_30px_rgba(13,148,136,0.3)] mb-6">
-            <CheckCircle size={48} weight="duotone" className="text-[#0D9488]" />
+          <div className="relative mb-8">
+            <motion.div
+              className="absolute inset-0 rounded-full bg-gradient-to-br from-[#22C55E] to-[#0D9488] blur-3xl opacity-30"
+              animate={{ scale: [1, 1.15, 1], opacity: [0.25, 0.4, 0.25] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <motion.div
+              className="relative w-40 h-40 rounded-full flex items-center justify-center"
+              style={{
+                background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(13, 148, 136, 0.15) 100%)',
+                boxShadow: `
+                  inset 0 8px 32px rgba(255, 255, 255, 0.2),
+                  inset 0 -8px 32px rgba(0, 0, 0, 0.1),
+                  0 20px 60px rgba(34, 197, 94, 0.3),
+                  0 0 0 1px rgba(255, 255, 255, 0.15)
+                `,
+                backdropFilter: 'blur(20px)',
+              }}
+              animate={{ y: [0, -8, 0], rotateX: [0, 3, 0], rotateY: [0, -3, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 50%)',
+                  clipPath: 'ellipse(80% 40% at 50% 10%)',
+                }}
+              />
+              <motion.div
+                className="absolute inset-4 rounded-full border-2 border-[#22C55E]/30 border-dashed"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+              />
+              <motion.div
+                className="absolute inset-8 rounded-full border border-[#0D9488]/40"
+                animate={{ rotate: -360 }}
+                transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+              />
+              <div className="relative z-10 text-[#22C55E] drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]">
+                <CheckCircle size={48} weight="fill" />
+              </div>
+            </motion.div>
           </div>
-          <h2 className="text-lg font-semibold text-text-primary">All Clean!</h2>
-          <p className="text-sm text-text-secondary mt-2 max-w-md">
-            No developer junk was found on your system. Your dev environment is already optimized!
+
+          <h2 className="text-3xl font-semibold text-text-primary mb-3">
+            All Clean!
+          </h2>
+          <p className="text-base text-text-secondary max-w-md leading-relaxed mb-10">
+            No developer junk was found on your system.
+            <br />
+            Your dev environment is already optimized!
           </p>
+
+          <motion.button
+            onClick={scan}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+            className="group relative flex items-center gap-3 px-10 py-4 rounded-full text-lg font-semibold text-white overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, #FF9F0A 0%, #FF2E93 100%)',
+              boxShadow: '0 8px 32px rgba(255, 159, 10, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+            }}
+          >
+            <div
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              style={{
+                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)',
+              }}
+            />
+            <Wrench size={24} weight="fill" className="relative z-10" />
+            <span className="relative z-10">Re-scan</span>
+          </motion.button>
         </motion.div>
       )}
 

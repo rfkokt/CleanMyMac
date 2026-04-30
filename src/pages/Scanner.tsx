@@ -8,6 +8,7 @@ import {
   CaretRight,
   House,
   Spinner,
+  HardDrives,
 } from '@phosphor-icons/react';
 import { useScanStore } from '../stores/scan-store';
 import { useCleanupStore } from '../stores/cleanup-store';
@@ -217,6 +218,101 @@ export default function Scanner() {
           </button>
         </div>
       </div>
+
+      {/* Empty State - Initial View */}
+      {!scanResult && !isScanning && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+          className="flex-1 flex flex-col items-center justify-center text-center -mt-12"
+        >
+          {/* 3D Glass Icon */}
+          <div className="relative mb-8">
+            {/* Background glow */}
+            <motion.div
+              className="absolute inset-0 rounded-full bg-gradient-to-br from-[#0D9488] to-[#00F0FF] blur-3xl opacity-30"
+              animate={{ scale: [1, 1.15, 1], opacity: [0.25, 0.4, 0.25] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            
+            {/* Main glass orb */}
+            <motion.div
+              className="relative w-40 h-40 rounded-full flex items-center justify-center"
+              style={{
+                background: 'linear-gradient(135deg, rgba(13, 148, 136, 0.3) 0%, rgba(0, 240, 255, 0.15) 100%)',
+                boxShadow: `
+                  inset 0 8px 32px rgba(255, 255, 255, 0.2),
+                  inset 0 -8px 32px rgba(0, 0, 0, 0.1),
+                  0 20px 60px rgba(13, 148, 136, 0.3),
+                  0 0 0 1px rgba(255, 255, 255, 0.15)
+                `,
+                backdropFilter: 'blur(20px)',
+              }}
+              animate={{ y: [0, -8, 0], rotateX: [0, 3, 0], rotateY: [0, -3, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              {/* Inner reflection */}
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 50%)',
+                  clipPath: 'ellipse(80% 40% at 50% 10%)',
+                }}
+              />
+              
+              {/* Scanning rings */}
+              <motion.div
+                className="absolute inset-4 rounded-full border-2 border-[#00F0FF]/30 border-dashed"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+              />
+              <motion.div
+                className="absolute inset-8 rounded-full border border-[#0D9488]/40"
+                animate={{ rotate: -360 }}
+                transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+              />
+              
+              {/* Center icon */}
+              <div className="relative z-10 text-[#00F0FF] drop-shadow-[0_0_15px_rgba(0,240,255,0.5)]">
+                <HardDrives size={48} weight="fill" />
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Title & Description */}
+          <h2 className="text-3xl font-semibold text-text-primary mb-3">
+            Scanner
+          </h2>
+          <p className="text-base text-text-secondary max-w-md leading-relaxed mb-10">
+            Scan your system to analyze storage usage
+            <br />
+            and reclaim free space.
+          </p>
+
+          {/* Scan Button */}
+          <motion.button
+            onClick={handleStartScan}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+            className="group relative flex items-center gap-3 px-10 py-4 rounded-full text-lg font-semibold text-white overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, #0D9488 0%, #00F0FF 100%)',
+              boxShadow: '0 8px 32px rgba(13, 148, 136, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+            }}
+          >
+            {/* Button shine effect */}
+            <div
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              style={{
+                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)',
+              }}
+            />
+            <Play size={24} weight="fill" className="relative z-10" />
+            <span className="relative z-10">Scan</span>
+          </motion.button>
+        </motion.div>
+      )}
 
       {/* Scanning progress */}
       <AnimatePresence>

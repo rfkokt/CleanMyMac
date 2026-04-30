@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   ChartDonut,
-  MagnifyingGlass,
   Lightning,
   Spinner,
 } from '@phosphor-icons/react';
@@ -154,29 +153,86 @@ export default function Visualizer() {
 
       {/* Empty state */}
       {!scanResult && !isScanning && (
-        <div className="flex-1 flex items-center justify-center">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="glass rounded-3xl p-16 flex flex-col items-center justify-center text-center border border-white/5"
-          >
-            <div className="p-5 rounded-full bg-[#00F0FF]/20 border border-[#00F0FF]/30 shadow-[0_0_30px_rgba(0,240,255,0.3)] mb-6">
-              <ChartDonut size={48} weight="duotone" className="text-[#00F0FF]" />
-            </div>
-            <h2 className="text-lg font-semibold text-white">No Scan Data</h2>
-            <p className="text-sm text-white/60 mt-2 max-w-md">
-              Run a scan first to see an interactive treemap visualization of your storage.
-              Each colored block represents a folder or file, sized by disk usage.
-            </p>
-            <button
-              onClick={handleStartScan}
-              className="mt-8 flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium text-white bg-gradient-to-r from-[#0D9488] to-[#0EA5E9] shadow-[0_0_20px_rgba(13,148,136,0.4)] hover:shadow-[0_0_30px_rgba(13,148,136,0.6)] transition-all"
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+          className="flex-1 flex flex-col items-center justify-center text-center -mt-12"
+        >
+          {/* 3D Glass Icon */}
+          <div className="relative mb-8">
+            <motion.div
+              className="absolute inset-0 rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#00F0FF] blur-3xl opacity-30"
+              animate={{ scale: [1, 1.15, 1], opacity: [0.25, 0.4, 0.25] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <motion.div
+              className="relative w-40 h-40 rounded-full flex items-center justify-center"
+              style={{
+                background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(0, 240, 255, 0.15) 100%)',
+                boxShadow: `
+                  inset 0 8px 32px rgba(255, 255, 255, 0.2),
+                  inset 0 -8px 32px rgba(0, 0, 0, 0.1),
+                  0 20px 60px rgba(139, 92, 246, 0.3),
+                  0 0 0 1px rgba(255, 255, 255, 0.15)
+                `,
+                backdropFilter: 'blur(20px)',
+              }}
+              animate={{ y: [0, -8, 0], rotateX: [0, 3, 0], rotateY: [0, -3, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
             >
-              <MagnifyingGlass size={18} />
-              Start Scanning
-            </button>
-          </motion.div>
-        </div>
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.25) 0%, transparent 50%)',
+                  clipPath: 'ellipse(80% 40% at 50% 10%)',
+                }}
+              />
+              <motion.div
+                className="absolute inset-4 rounded-full border-2 border-[#00F0FF]/30 border-dashed"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+              />
+              <motion.div
+                className="absolute inset-8 rounded-full border border-[#8B5CF6]/40"
+                animate={{ rotate: -360 }}
+                transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+              />
+              <div className="relative z-10 text-[#00F0FF] drop-shadow-[0_0_15px_rgba(0,240,255,0.5)]">
+                <ChartDonut size={48} weight="fill" />
+              </div>
+            </motion.div>
+          </div>
+
+          <h2 className="text-3xl font-semibold text-text-primary mb-3">
+            Visualizer
+          </h2>
+          <p className="text-base text-text-secondary max-w-md leading-relaxed mb-10">
+            Run a scan first to see an interactive treemap
+            <br />
+            visualization of your storage.
+          </p>
+
+          <motion.button
+            onClick={handleStartScan}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+            className="group relative flex items-center gap-3 px-10 py-4 rounded-full text-lg font-semibold text-white overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, #8B5CF6 0%, #00F0FF 100%)',
+              boxShadow: '0 8px 32px rgba(139, 92, 246, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset',
+            }}
+          >
+            <div
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity"
+              style={{
+                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)',
+              }}
+            />
+            <Lightning size={24} weight="fill" className="relative z-10" />
+            <span className="relative z-10">Scan to Visualize</span>
+          </motion.button>
+        </motion.div>
       )}
     </motion.div>
   );
