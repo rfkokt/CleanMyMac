@@ -41,6 +41,23 @@ export function getCategoryColor(category: string): string {
   return colors[category] || '#475569';
 }
 
+export function getCategoryLabel(category: string): string {
+  const labels: Record<string, string> = {
+    System: 'System Files',
+    Application: 'Applications',
+    Document: 'Documents',
+    Media: 'Photos & Videos',
+    Code: 'Code Projects',
+    DevCache: 'Developer Cache',
+    Cache: 'App Cache',
+    Log: 'Log Files',
+    Archive: 'Archives',
+    Trash: 'Trash',
+    Other: 'Other',
+  };
+  return labels[category] || category;
+}
+
 export function getSafetyColor(level: string): string {
   switch (level) {
     case 'Safe': return '#22c55e';

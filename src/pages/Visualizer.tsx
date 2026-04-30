@@ -4,10 +4,12 @@ import {
   ChartDonut,
   Lightning,
   Spinner,
+  SquaresFour,
 } from '@phosphor-icons/react';
 import { useScanStore } from '../stores/scan-store';
 import { useScanner } from '../hooks/use-scanner';
 import { Treemap } from '../components/visualizer/Treemap';
+import { SimpleSummary } from '../components/visualizer/SimpleSummary';
 import { Breadcrumbs } from '../components/visualizer/Breadcrumbs';
 import { formatBytes } from '../lib/format';
 import type { FileNode } from '../types';
@@ -18,6 +20,7 @@ export default function Visualizer() {
 
   // Drill-down navigation
   const [navStack, setNavStack] = useState<FileNode[]>([]);
+  const [viewMode, setViewMode] = useState<'simple' | 'detailed'>('simple');
 
   const currentNode = navStack.length > 0
     ? navStack[navStack.length - 1]
@@ -131,18 +134,53 @@ export default function Visualizer() {
             <Breadcrumbs path={breadcrumbPath} onNavigate={handleBreadcrumbNav} />
           </div>
 
-          {/* Treemap Container */}
-          <div className="flex-1 min-h-0 glass rounded-3xl overflow-hidden border border-white/5">
-            <Treemap
-              data={currentNode}
-              onDrillDown={handleDrillDown}
-            />
+          {/* View Toggle */}
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => setViewMode('simple')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                viewMode === 'simple'
+                  ? 'bg-white/10 text-white'
+                  : 'text-white/50 hover:text-white/70'
+              }`}
+            >
+              <ChartDonut size={16} weight="fill" />
+              Simple View
+            </button>
+            <button
+              onClick={() => setViewMode('detailed')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                viewMode === 'detailed'
+                  ? 'bg-white/10 text-white'
+                  : 'text-white/50 hover:text-white/70'
+              }`}
+            >
+              <SquaresFour size={16} weight="fill" />
+              Detailed Treemap
+            </button>
+          </div>
+
+          {/* Content Container */}
+          <div className="flex-1 min-h-0 glass rounded-3xl overflow-hidden border border-white/5 p-6">
+            {viewMode === 'simple' ? (
+              <SimpleSummary
+                data={currentNode}
+                totalSize={currentNode.size}
+              />
+            ) : (
+              <Treemap
+                data={currentNode}
+                onDrillDown={handleDrillDown}
+              />
+            )}
           </div>
 
           {/* Info Footer */}
           <div className="flex items-center gap-4 flex-wrap text-xs text-white/40 shrink-0">
-            <span>Click a block to zoom in · Use breadcrumbs to navigate back</span>
-            <span className="text-white/20">·</span>
+            {viewMode === 'detailed' && (
+              <span>Click a block to zoom in · Use breadcrumbs to navigate back</span>
+            )}
+            {viewMode === 'detailed' && <span className="text-white/20">·</span>}
             <span>
               {scanResult.file_count.toLocaleString()} files ·{' '}
               {scanResult.dir_count.toLocaleString()} directories
