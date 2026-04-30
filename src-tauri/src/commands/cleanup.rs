@@ -32,7 +32,7 @@ fn is_protected(path: &std::path::Path) -> bool {
         }
         // Protect ~/Library and ~/Applications themselves (but NOT their contents)
         if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-            if (name == "Library" || name == "Applications" || name == "Desktop" || name == "Documents" || name == "Downloads") {
+            if name == "Library" || name == "Applications" || name == "Desktop" || name == "Documents" || name == "Downloads" {
                 // Only protect if this is a direct child of a user's home dir
                 if parent_str.starts_with("/Users/") && parent_str.matches('/').count() == 2 {
                     return true;

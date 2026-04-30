@@ -224,6 +224,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "buatlega"
+version = "0.1.0"
+dependencies = [
+ "bytesize",
+ "chrono",
+ "dirs 5.0.1",
+ "env_logger",
+ "ignore",
+ "jwalk",
+ "libc",
+ "log",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-dialog",
+ "tauri-plugin-os",
+ "tauri-plugin-shell",
+ "tokio",
+ "trash",
+ "xxhash-rust",
+]
+
+[[package]]
 name = "bumpalo"
 version = "3.20.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -384,30 +408,6 @@ dependencies = [
  "serde",
  "wasm-bindgen",
  "windows-link 0.2.1",
-]
-
-[[package]]
-name = "cleanmymac"
-version = "0.1.0"
-dependencies = [
- "bytesize",
- "chrono",
- "dirs 5.0.1",
- "env_logger",
- "ignore",
- "jwalk",
- "libc",
- "log",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-dialog",
- "tauri-plugin-os",
- "tauri-plugin-shell",
- "tokio",
- "trash",
- "xxhash-rust",
 ]
 
 [[package]]

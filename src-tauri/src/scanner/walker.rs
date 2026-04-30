@@ -5,6 +5,7 @@
 use std::path::Path;
 
 /// Calculate directory size using jwalk for parallel traversal
+#[allow(dead_code)]
 pub fn calculate_dir_size(path: &Path) -> u64 {
     jwalk::WalkDir::new(path)
         .into_iter()

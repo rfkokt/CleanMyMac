@@ -49,7 +49,7 @@ export function FDAModal({ isOpen, onDismiss }: FDAModalProps) {
                       Full Disk Access Required
                     </h2>
                     <p className="text-sm text-white/60 mt-0.5">
-                      CleanMyMac needs permission to scan
+                      BuatLega needs permission to scan
                     </p>
                   </div>
                 </div>
@@ -59,7 +59,7 @@ export function FDAModal({ isOpen, onDismiss }: FDAModalProps) {
               <div className="px-6 pb-4">
                 <div className="space-y-3 text-sm text-white/70">
                   <p>
-                    To scan and clean your entire disk, CleanMyMac needs <strong className="text-white">Full Disk Access</strong> permission.
+                    To scan and clean your entire disk, BuatLega needs <strong className="text-white">Full Disk Access</strong> permission.
                   </p>
                   <p>
                     Without it, many directories (like Library and system caches) will be inaccessible, and your scan results will be incomplete.
@@ -71,7 +71,7 @@ export function FDAModal({ isOpen, onDismiss }: FDAModalProps) {
                       <li>Open <strong className="text-white">System Settings</strong></li>
                       <li>Go to <strong className="text-white">Privacy & Security</strong></li>
                       <li>Click <strong className="text-white">Full Disk Access</strong></li>
-                      <li>Toggle on <strong className="text-white">CleanMyMac</strong></li>
+                      <li>Toggle on <strong className="text-white">BuatLega</strong></li>
                     </ol>
                   </div>
                 </div>

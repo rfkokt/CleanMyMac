@@ -1,4 +1,4 @@
-# CleanMyMac — Technical Documentation
+# BuatLega — Technical Documentation
 
 > **Purpose**: This document serves as the single source of truth for any AI or developer working on this project. It describes the architecture, tech stack, features, conventions, and implementation details.
 
@@ -9,7 +9,7 @@
 
 ## 1. Project Overview
 
-**CleanMyMac** is a macOS desktop application for analyzing and cleaning disk storage. It targets developers (node_modules, Xcode DerivedData, Docker, .git) and general users (large files, duplicates, caches).
+**BuatLega** is a macOS desktop application for analyzing and cleaning disk storage. It targets developers (node_modules, Xcode DerivedData, Docker, .git) and general users (large files, duplicates, caches).
 
 ### Core Value Propositions
 1. **Developer-first cleanup** — Detect scattered `node_modules`, Xcode DerivedData, Docker volumes, `.git` objects
@@ -43,7 +43,7 @@
 
 ### Scaffolding Command
 ```bash
-pnpm create tauri-app@latest CleanMyMac -- --template react-ts --manager pnpm
+pnpm create tauri-app@latest BuatLega -- --template react-ts --manager pnpm
 ```
 
 ---
@@ -51,7 +51,7 @@ pnpm create tauri-app@latest CleanMyMac -- --template react-ts --manager pnpm
 ## 3. Project Structure
 
 ```
-CleanMyMac/
+BuatLega/
 ├── src/                          # React Frontend
 │   ├── assets/                   # Static assets (icons, images)
 │   ├── components/
@@ -520,7 +520,7 @@ pub const DEV_JUNK_PATTERNS: &[(&str, DevJunkType)] = &[
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Default capability for CleanMyMac",
+  "description": "Default capability for BuatLega",
   "windows": ["main"],
   "permissions": [
     "core:default",
@@ -1133,7 +1133,7 @@ export interface CleanupError {
 ```json
 {
   "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/dev/crates/tauri-config-schema/schema.json",
-  "productName": "CleanMyMac",
+  "productName": "BuatLega",
   "version": "0.1.0",
   "identifier": "com.cleanmymac.app",
   "build": {
@@ -1145,7 +1145,7 @@ export interface CleanupError {
   "app": {
     "windows": [
       {
-        "title": "CleanMyMac",
+        "title": "BuatLega",
         "width": 1200,
         "height": 800,
         "minWidth": 900,

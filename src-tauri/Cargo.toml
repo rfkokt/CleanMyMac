@@ -1,12 +1,12 @@
 [package]
-name = "cleanmymac"
+name = "buatlega"
 version = "0.1.0"
 description = "A macOS storage analyzer and cleaner for developers"
 authors = ["you"]
 edition = "2021"
 
 [lib]
-name = "cleanmymac_lib"
+name = "buatlega_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]

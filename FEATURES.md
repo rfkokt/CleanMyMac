@@ -1,4 +1,4 @@
-# CleanMyMac — Feature Backlog & Roadmap
+# BuatLega — Feature Backlog & Roadmap
 
 > **Purpose**: This is the single source of truth for all features — planned, in-progress, and completed.
 > Any AI or developer adding a new feature MUST check this document first to:
@@ -231,7 +231,7 @@ Each feature has:
 - **Depends On**: F-001
 - **Acceptance Criteria**:
   - [ ] Tray icon shows disk usage % as text or color indicator
-  - [ ] Click opens dropdown: used/free space, "Open CleanMyMac" button
+   - [ ] Click opens dropdown: used/free space, "Open BuatLega" button
   - [ ] Updates periodically (every 5 minutes)
   - [ ] Warning icon when usage > 90%
 
